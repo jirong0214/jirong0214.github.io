@@ -1822,7 +1822,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #d72dff;
+  background: #ffecb5;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -2905,7 +2905,7 @@ hr {
   }
 }
 body {
-  background: url("/images/BigSur.jpg");
+  background: url("https://i.loli.net/2020/07/08/ejkxU3TqOAQDplN.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: 50% 50%;
