@@ -278,6 +278,179 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/06/LeetCode%20%E5%9B%9E%E6%BA%AF%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/06/LeetCode%20%E5%9B%9E%E6%BA%AF%E6%B3%95/" itemprop="url">LeetCode 回溯法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-06T21:04:17+08:00">
+                2020-08-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%B7%E9%A2%98/" itemprop="url" rel="index">
+                    <span itemprop="name">刷题</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="回溯法解题框架："><a href="#回溯法解题框架：" class="headerlink" title="回溯法解题框架："></a>回溯法解题框架：</h3><p><strong>回溯法有3种题型：</strong></p>
+<ol>
+<li><p>find a path to success;</p>
+</li>
+<li><p>find all path to success : </p>
+<p>2.1 求解的个数；</p>
+<p>2.2 求所有的解；【重点】</p>
+</li>
+<li><p>find the best path to success;</p>
+</li>
+</ol>
+<p><strong>框架：</strong></p>
+<p>result = [];</p>
+<p>def backTracc(path,选择列表)：</p>
+<p>​    if(满足剪枝条件): 剪枝，return；</p>
+<p>​    if(满足结果条件)：result.add(path); return;</p>
+<p>for 选择 in 选择列表：</p>
+<p>​    做选择;</p>
+<p>​    backTrace(路径，选择列表);  //进入下一层决策树；</p>
+<p>​    撤销选择;</p>
+<p>具体情况优化：</p>
+<p>【1】当path为StringBulider时，可严格按照上述流程来写。当path为String时，由于String是final修饰的，因此可以省略撤销选择的过程，因为循环中的每次递归用的都是新的变量，与原变量无关，因此不需要对原变量进行撤销选择的操作。（缺点：每次递归都要建立一个新变量）</p>
+<p>LeetCode17：电话号码的字母组合：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> 电话号码的字母组合17 </span>&#123;</span><br><span class="line">    List&lt;String&gt; res;</span><br><span class="line">    HashMap&lt;Character, String&gt; map; <span class="comment">//用于映射数字和对应的字母</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">letterCombinations</span><span class="params">(String digits)</span> </span>&#123;</span><br><span class="line">        res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">if</span> (digits.length() == <span class="number">0</span>) <span class="keyword">return</span> res;  <span class="comment">//特判</span></span><br><span class="line"></span><br><span class="line">        map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        map.put(<span class="string">'2'</span>, <span class="string">"abc"</span>);</span><br><span class="line">        map.put(<span class="string">'3'</span>, <span class="string">"def"</span>);</span><br><span class="line">        map.put(<span class="string">'4'</span>, <span class="string">"ghi"</span>);</span><br><span class="line">        map.put(<span class="string">'5'</span>, <span class="string">"jkl"</span>);</span><br><span class="line">        map.put(<span class="string">'6'</span>, <span class="string">"mno"</span>);</span><br><span class="line">        map.put(<span class="string">'7'</span>, <span class="string">"pqrs"</span>);</span><br><span class="line">        map.put(<span class="string">'8'</span>, <span class="string">"tuv"</span>);</span><br><span class="line">        map.put(<span class="string">'9'</span>, <span class="string">"wxyz"</span>);</span><br><span class="line"></span><br><span class="line">        backTrack(digits, <span class="number">0</span>, <span class="keyword">new</span> StringBuilder());</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//digits:一串数字,如:234</span></span><br><span class="line">    <span class="comment">//index:第几位数字:如 2</span></span><br><span class="line">    <span class="comment">//letters:组成的字母:如 adg</span></span><br><span class="line">    <span class="comment">//index:需要递归的数字索引</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">backTrack</span><span class="params">(String digits, <span class="keyword">int</span> index, StringBuilder letters)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (digits.length() == index) &#123;   <span class="comment">//满足结束条件</span></span><br><span class="line">            res.add(letters + <span class="string">""</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        String alphas = map.get(digits.charAt(index));<span class="comment">//获取"abc"</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">byte</span> i = <span class="number">0</span>; i &lt; alphas.length(); ++i) &#123;</span><br><span class="line">            letters.append(alphas.charAt(i));       <span class="comment">//做选择:将当前字母添加到路径</span></span><br><span class="line">            backTrack(digits, index + <span class="number">1</span>, letters); <span class="comment">//进入下一层决策树</span></span><br><span class="line">            letters.deleteCharAt(letters.length() - <span class="number">1</span>);<span class="comment">//撤销选择</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>LeetCode22：括号生成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; res;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">generateParenthesis</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        res = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">        backTrace(n,<span class="string">""</span>,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">backTrace</span><span class="params">(<span class="keyword">int</span> n,String path,<span class="keyword">int</span> numLeft,<span class="keyword">int</span> numRight)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(numRight &gt; numLeft || numLeft &gt; n || numRight &gt; n)    <span class="keyword">return</span>;<span class="comment">//剪枝</span></span><br><span class="line">        <span class="keyword">if</span>(numLeft == n &amp;&amp; numRight == n)&#123;</span><br><span class="line">            res.add(path);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        backTrace(n,path+<span class="string">"("</span>,numLeft+<span class="number">1</span>,numRight);</span><br><span class="line">        backTrace(n,path+<span class="string">")"</span>,numLeft,numRight+<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/04/%E5%9F%BA%E4%BA%8ESpringBoot+Mybatis+Thymeleaf%E7%9A%84%E5%91%98%E5%B7%A5%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1202,7 +1375,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1213,7 +1386,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
