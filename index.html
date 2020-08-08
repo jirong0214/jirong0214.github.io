@@ -278,6 +278,152 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/08/Redis%E4%B9%8B%E4%BA%8B%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/08/Redis%E4%B9%8B%E4%BA%8B%E5%8A%A1/" itemprop="url">Redis之事务</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-08T22:07:36+08:00">
+                2020-08-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Redis之事务"><a href="#Redis之事务" class="headerlink" title="Redis之事务"></a>Redis之事务</h2><p><strong>Redis事务的概念：</strong></p>
+<p>　　Redis 事务的本质是一组命令的集合。事务支持一次执行多个命令，一个事务中所有命令都会被序列化。在事务执行过程，会按照顺序串行化执行队列中的命令，其他客户端提交的命令请求不会插入到事务执行命令序列中。</p>
+<p>　　总结：redis事务就是一次性、顺序性、排他性的执行一个队列中的一系列命令。　</p>
+<p><strong>Redis事务没有隔离级别的概念：</strong></p>
+<p>　　批量操作在发送 EXEC 命令前被放入队列缓存，并不会被实际执行，也就不存在事务内的查询要看到事务里的更新，事务外查询不能看到。</p>
+<p><strong>Redis不保证原子性：</strong></p>
+<p>　　Redis中，单条命令是原子性执行的，但事务不保证原子性，且没有回滚。事务中任意命令执行失败，其余的命令仍会被执行。</p>
+<p><strong>Redis事务的三个阶段：</strong></p>
+<ul>
+<li>开始事务</li>
+<li>命令入队</li>
+<li>执行事务</li>
+</ul>
+<p><strong>Redis事务相关命令：</strong></p>
+<p>　　watch key1 key2 … : 监视一或多个key,如果在事务执行之前，被监视的key被其他命令改动，则事务被打断 （ 类似乐观锁 ）</p>
+<p>　　multi : 标记一个事务块的开始（ queued ）</p>
+<p>　　exec : 执行所有事务块的命令 （ 一旦执行exec后，之前加的监控锁都会被取消掉 ）　</p>
+<p>　　discard : 取消事务，放弃事务块中的所有命令</p>
+<p>　　unwatch : 取消watch对所有key的监控</p>
+<h2 id="事务的案例："><a href="#事务的案例：" class="headerlink" title="事务的案例："></a>事务的案例：</h2><p><img src="https://i.loli.net/2020/08/08/QgK91xnCWOUVBJX.png" alt="image-20200808220258106"></p>
+<p><img src="https://i.loli.net/2020/08/08/eUFzTowvlXr89DQ.png" alt="image-20200808220315726"></p>
+<p><img src="https://i.loli.net/2020/08/08/Hx8Q9wC6e5smhut.png" alt="image-20200808220323889"></p>
+<p><img src="https://i.loli.net/2020/08/08/3tKf4p9G7dPnYEJ.png" alt="image-20200808220336464"></p>
+<h2 id="使用watch乐观锁的案例"><a href="#使用watch乐观锁的案例" class="headerlink" title="使用watch乐观锁的案例"></a>使用watch乐观锁的案例</h2><p><img src="https://i.loli.net/2020/08/08/zCeULYA8B5FQmPp.png" alt="image-20200808220441009"></p>
+<p><img src="https://i.loli.net/2020/08/08/rZD64lAjXRBHUF8.png" alt="image-20200808220646701"></p>
+<p><strong>总结：</strong></p>
+<p>​        watch指令类似于乐观锁，在事务提交时，如果watch监控的多个KEY中任何KEY的值已经被其他客户端更改，则使用EXEC执行事务时，事务队列将不会被执行，同时返回Nullmulti-bulk应答以通知调用者事务执行失败。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/08/Redis%E4%B9%8BHyperLogLog%E4%B8%8E%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -349,19 +495,19 @@
       
         
           
-            <h2 id="redis的HyperLogLog与布隆过滤器"><a href="#redis的HyperLogLog与布隆过滤器" class="headerlink" title="redis的HyperLogLog与布隆过滤器"></a>redis的HyperLogLog与布隆过滤器</h2><p>​    首先，HyperLogLog与布隆过滤器都是针对大数据统计存储应用场景下的知名算法。HyperLogLog是在大数据的情况下关于数据基数的空间复杂度优化实现，布隆过滤器是在大数据情况下关于检索一个元素是否在一个集合中的空间复杂度优化后的实现。在传统的数据量比较低的应用服务中，我们要实现数据基数和数据是否存在分析的功能，通常是简单的把所有数据存储下来，直接count一下就是基数了，而直接检索一个元素是否在一个集合中也很简单。</p>
-<p>​    但随着数据量的急剧增大，传统的方式已经很难达到工程上的需求。过大的数据量无论是在存储还是在查询方面都存在巨大的挑战，无论我们是用位存储还是树结构存储等方式来优化，都没法达到大数据时代的要求或者是性价比太低。</p>
-<p>​    于是HyperLogLog与布隆过滤器这两个算法就很好的派上了用场。他们的使用可以极大的节约存储空间，作为代价，则是牺牲了一个小概率的准确性，这可以很好的达到工程上的需求，对于那些要求准确度没那么高，但数据量巨大的需求是非常合适的。</p>
+            <h2 id="redis的HyperLogLog与布隆过滤器"><a href="#redis的HyperLogLog与布隆过滤器" class="headerlink" title="redis的HyperLogLog与布隆过滤器"></a>redis的HyperLogLog与布隆过滤器</h2><p>​        首先，HyperLogLog与布隆过滤器都是针对大数据统计存储应用场景下的知名算法。HyperLogLog是在大数据的情况下关于数据基数的空间复杂度优化实现，布隆过滤器是在大数据情况下关于检索一个元素是否在一个集合中的空间复杂度优化后的实现。在传统的数据量比较低的应用服务中，我们要实现数据基数和数据是否存在分析的功能，通常是简单的把所有数据存储下来，直接count一下就是基数了，而直接检索一个元素是否在一个集合中也很简单。</p>
+<p>​        但随着数据量的急剧增大，传统的方式已经很难达到工程上的需求。过大的数据量无论是在存储还是在查询方面都存在巨大的挑战，无论我们是用位存储还是树结构存储等方式来优化，都没法达到大数据时代的要求或者是性价比太低。</p>
+<p>​        于是HyperLogLog与布隆过滤器这两个算法就很好的派上了用场。他们的使用可以极大的节约存储空间，作为代价，则是牺牲了一个小概率的准确性，这可以很好的达到工程上的需求，对于那些要求准确度没那么高，但数据量巨大的需求是非常合适的。</p>
 <p><strong>HyperLogLog原理</strong></p>
-<p>​    最直白的解释是，给定一个集合 S，对集合中的每一个元素，我们做一个哈希，假设生成一个 16 位的比特串，从所有生成的比特串中挑选出前面连续 0 次数最多的比特串，假设为 0000000011010110，连续 0 的次数为 8，因此我们可以估计该集合 S 的基数为 2^9。当然单独用这样的单一估计偶然性较大，导致误差较大，因此在实际的 HyperLogLog 算法中，采取分桶平均原理了来消除误差。</p>
+<p>​        最直白的解释是，给定一个集合 S，对集合中的每一个元素，我们做一个哈希，假设生成一个 16 位的比特串，从所有生成的比特串中挑选出前面连续 0 次数最多的比特串，假设为 0000000011010110，连续 0 的次数为 8，因此我们可以估计该集合 S 的基数为 2^9。当然单独用这样的单一估计偶然性较大，导致误差较大，因此在实际的 HyperLogLog 算法中，采取分桶平均原理了来消除误差。</p>
 <p><strong>特点</strong>：实现<strong>牺牲了一定的准确度</strong>（在一些场景下是可以忽略的），但却实现了<strong>空间复杂度上的极大的压缩</strong>，可以说是性价比很高的。虽然基数不完全准确，但是可以符合，随着数量的递增，基数也是递增的。</p>
 <p><strong>布隆过滤器原理</strong></p>
 <p><img src="https://i.loli.net/2020/08/08/DkTrtSgCYmuWyqR.png" alt="image-20200808210404433"></p>
-<p>​    <strong>布隆过滤器</strong>（Bloom Filter）的核心实现是一个超大的位数组和几个哈希函数。假设位数组的长度为m，哈希函数的个数为k，以上图为例，具体的操作流程：假设集合里面有3个元素{x, y, z}，哈希函数的个数为3。首先将位数组进行初始化，将里面每个位都设置为0。对于集合里面的每一个元素，将元素依次通过3个哈希函数进行映射，每次映射都会产生一个哈希值，<strong>这个值对应位数组上面的一个点，然后将位数组对应的位置标记为1</strong>。查询W元素是否存在集合中的时候，同样的方法将W通过哈希映射到位数组上的3个点。<strong>如果3个点的其中有一个点不为1，则可以判断该元素一定不存在集合中。反之，如果3个点都为1，则该元素可能存在集合中</strong>。注意：此处不能判断该元素是否一定存在集合中，可能<strong>存在一定的误判率</strong>。可以从图中可以看到：假设某个元素通过映射对应下标为4，5，6这3个点。虽然这3个点都为1，但是很明显这3个点是不同元素经过哈希得到的位置，因此这种情况说明元素虽然不在集合中，也可能对应的都是1，这是误判率存在的原因。</p>
-<p>​    <strong>特点：巧妙的使用hash算法和bitmap位存储的方式，极大的节约了空间。</strong></p>
-<p>​    由于主要用的是hash算法的特点，所有满足和hash算法相同的规则：当过滤器返回 true时（表示很有可能该值是存在的），有一定概率是误判的，即可能不存在；当过滤器返回false时（表示确定不存在），是可以完全相信的。</p>
-<p>​    我们换个数据的角度来看规则：当数据添加到布隆过滤器中时，对该数据的查询一定会返回true；当数据没有插入过滤器时，对该数据的查询大部分情况返回false，但有小概率返回true，也就是误判。</p>
-<p>　 我们知道它最终满足的规则和hash的规则是一致的，只是组合了多个hash，使用了bitmap来存储，大大优化了存储的空间和判断的效率。</p>
+<p>​        <strong>布隆过滤器</strong>（Bloom Filter）的核心实现是一个超大的位数组和几个哈希函数。假设位数组的长度为m，哈希函数的个数为k，以上图为例，具体的操作流程：假设集合里面有3个元素{x, y, z}，哈希函数的个数为3。首先将位数组进行初始化，将里面每个位都设置为0。对于集合里面的每一个元素，将元素依次通过3个哈希函数进行映射，每次映射都会产生一个哈希值，<strong>这个值对应位数组上面的一个点，然后将位数组对应的位置标记为1</strong>。查询W元素是否存在集合中的时候，同样的方法将W通过哈希映射到位数组上的3个点。<strong>如果3个点的其中有一个点不为1，则可以判断该元素一定不存在集合中。反之，如果3个点都为1，则该元素可能存在集合中</strong>。注意：此处不能判断该元素是否一定存在集合中，可能<strong>存在一定的误判率</strong>。可以从图中可以看到：假设某个元素通过映射对应下标为4，5，6这3个点。虽然这3个点都为1，但是很明显这3个点是不同元素经过哈希得到的位置，因此这种情况说明元素虽然不在集合中，也可能对应的都是1，这是误判率存在的原因。</p>
+<p><strong>特点：巧妙的使用hash算法和bitmap位存储的方式，极大的节约了空间。</strong></p>
+<p>​        由于主要用的是hash算法的特点，所有满足和hash算法相同的规则：当过滤器返回 true时（表示很有可能该值是存在的），有一定概率是误判的，即可能不存在；当过滤器返回false时（表示确定不存在），是可以完全相信的。</p>
+<p>​        我们换个数据的角度来看规则：当数据添加到布隆过滤器中时，对该数据的查询一定会返回true；当数据没有插入过滤器时，对该数据的查询大部分情况返回false，但有小概率返回true，也就是误判。</p>
+<p>　     我们知道它最终满足的规则和hash的规则是一致的，只是组合了多个hash，使用了bitmap来存储，大大优化了存储的空间和判断的效率。</p>
 <p><strong>redis中的HyperLogLog</strong></p>
 <p>在redis中对HyperLogLog 的支持早在2.8.9的时候就有了。它的操作非常简单</p>
 <ul>
@@ -370,7 +516,7 @@
 <li><a href="http://redisdoc.com/hyperloglog/pfmerge.html" target="_blank" rel="noopener">PFMERGE</a> 合并两个HyperLogLog数据（完美合并，分别添加和统一添加的结果是一致的）</li>
 </ul>
 <p><strong>redis中的布隆过滤器</strong></p>
-<p> 在redis中的布隆过滤器的支持是在redis4.0后支持插件的情况下，通过插件的方式实现的 ，redis的布隆过滤器插件地址：<a href="https://github.com/RedisLabsModules/rebloom" target="_blank" rel="noopener">https://github.com/RedisLabsModules/rebloom</a></p>
+<p>​        在redis中的布隆过滤器的支持是在redis4.0后支持插件的情况下，通过插件的方式实现的 ，redis的布隆过滤器插件地址：<a href="https://github.com/RedisLabsModules/rebloom" target="_blank" rel="noopener">https://github.com/RedisLabsModules/rebloom</a></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">BF.RESERVE &#123;key&#125; &#123;error_rate&#125; &#123;size&#125;   </span><br><span class="line"><span class="comment">//创建一个布隆过滤器,key为redis存储键值，error_rate 为错误率</span></span><br><span class="line">BF.ADD &#123;key&#125; &#123;item&#125;  </span><br><span class="line"><span class="comment">//添加值到布隆过滤器中（当过滤器不存在的时候会，会以默认值自动创建一个，建议最好提前创建好）</span></span><br><span class="line">BF.EXISTS &#123;key&#125; &#123;item&#125;  </span><br><span class="line"><span class="comment">//判断值是否存在过滤器中: true（表示很可能存在） false （表示绝对不存在）</span></span><br></pre></td></tr></table></figure>
 
 
@@ -1518,7 +1664,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
