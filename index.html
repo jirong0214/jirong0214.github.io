@@ -278,6 +278,635 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/15/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/15/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6/" itemprop="url">动态代理机制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-15T23:43:16+08:00">
+                2020-08-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<h2 id="tags-spring"><a href="#tags-spring" class="headerlink" title="tags:spring"></a>tags:spring</h2><h2 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h2><p>​        java动态代理机制中有<strong>两个重要的类和接口InvocationHandler（接口）和Proxy（类）</strong>，这一个类Proxy和接口InvocationHandler是我们实现动态代理的核心；</p>
+<h5 id="1-InvocationHandler接口是proxy代理实例的调用处理程序实现的一个接口，每一个proxy代理实例都有一个关联的调用处理程序；在代理实例调用方法时，方法调用被编码分派到调用处理程序的invoke方法。看下官方文档对InvocationHandler接口的描述："><a href="#1-InvocationHandler接口是proxy代理实例的调用处理程序实现的一个接口，每一个proxy代理实例都有一个关联的调用处理程序；在代理实例调用方法时，方法调用被编码分派到调用处理程序的invoke方法。看下官方文档对InvocationHandler接口的描述：" class="headerlink" title="1.InvocationHandler接口是proxy代理实例的调用处理程序实现的一个接口，每一个proxy代理实例都有一个关联的调用处理程序；在代理实例调用方法时，方法调用被编码分派到调用处理程序的invoke方法。看下官方文档对InvocationHandler接口的描述："></a>1.InvocationHandler接口是proxy代理实例的调用处理程序实现的一个接口，每一个proxy代理实例都有一个关联的调用处理程序；在代理实例调用方法时，方法调用被编码分派到调用处理程序的invoke方法。看下官方文档对InvocationHandler接口的描述：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="meta">@code</span> InvocationHandler&#125; is the <span class="class"><span class="keyword">interface</span> <span class="title">implemented</span> <span class="title">by</span></span></span><br><span class="line"><span class="class"><span class="title">the</span> &lt;<span class="title">i</span>&gt;<span class="title">invocation</span> <span class="title">handler</span>&lt;/<span class="title">i</span>&gt; <span class="title">of</span> <span class="title">a</span> <span class="title">proxy</span> <span class="title">instance</span>.</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class">&lt;<span class="title">p</span>&gt;<span class="title">Each</span> <span class="title">proxy</span> <span class="title">instance</span> <span class="title">has</span> <span class="title">an</span> <span class="title">associated</span> <span class="title">invocation</span> <span class="title">handler</span>.</span></span><br><span class="line"><span class="class"><span class="title">When</span> <span class="title">a</span> <span class="title">method</span> <span class="title">is</span> <span class="title">invoked</span> <span class="title">on</span> <span class="title">a</span> <span class="title">proxy</span> <span class="title">instance</span>, <span class="title">the</span> <span class="title">method</span></span></span><br><span class="line"><span class="class"><span class="title">invocation</span> <span class="title">is</span> <span class="title">encoded</span> <span class="title">and</span> <span class="title">dispatched</span> <span class="title">to</span> <span class="title">the</span> </span>&#123;<span class="meta">@code</span> invoke&#125;</span><br><span class="line">method of its invocation handler.</span><br></pre></td></tr></table></figure>
+
+<p>​        每一个动态代理类的调用处理程序都必须实现InvocationHandler接口，并且每个代理类的实例都关联到了实现该接口的动态代理类调用处理程序中，当我们通过动态代理对象调用一个方法时候，这个方法的调用就会被转发到实现InvocationHandler接口类的invoke方法来调用，看如下invoke方法：</p>
+<h5 id="2-Proxy类就是用来创建一个代理对象的类，它提供了很多方法，但是我们最常用的是newProxyInstance方法。"><a href="#2-Proxy类就是用来创建一个代理对象的类，它提供了很多方法，但是我们最常用的是newProxyInstance方法。" class="headerlink" title="2.Proxy类就是用来创建一个代理对象的类，它提供了很多方法，但是我们最常用的是newProxyInstance方法。"></a>2.Proxy类就是用来创建一个代理对象的类，它提供了很多方法，但是我们最常用的是newProxyInstance方法。</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static Object newProxyInstance(ClassLoader loader, </span><br><span class="line">                                        Class&lt;?&gt;[] interfaces, </span><br><span class="line">                                        InvocationHandler h)123</span><br><span class="line"> Returns an instance of a proxy class for the specified interfaces</span><br><span class="line"> that dispatches method invocations to the specified invocation</span><br><span class="line"> handler.  This method is equivalent to:123</span><br></pre></td></tr></table></figure>
+
+<p>这个方法的作用就是创建一个代理类对象，它接收三个参数，我们来看下几个参数的含义：</p>
+<ul>
+<li><strong>loader</strong>：一个<strong>classloader对象</strong>，定义了由哪个classloader对象对生成的代理类进行加载</li>
+<li><strong>interfaces</strong>：一个<strong>interface对象数组</strong>，表示我们将要给我们的代理对象提供一组什么样的接口，如果我们提供了这样一个接口对象数组，那么也就是声明了代理类实现了这些接口，代理类就可以调用接口中声明的所有方法。</li>
+<li><strong>h</strong>：一个<strong>InvocationHandler对象</strong>，表示的是当动态代理对象调用方法的时候会关联到哪一个InvocationHandler对象上，并最终由其调用。</li>
+</ul>
+<h5 id="3动态代理中核心的两个接口和类上面已经介绍完了，接下来我们就用实例来讲解下具体的用法"><a href="#3动态代理中核心的两个接口和类上面已经介绍完了，接下来我们就用实例来讲解下具体的用法" class="headerlink" title="3动态代理中核心的两个接口和类上面已经介绍完了，接下来我们就用实例来讲解下具体的用法"></a>3动态代理中核心的两个接口和类上面已经介绍完了，接下来我们就用实例来讲解下具体的用法</h5><ul>
+<li>首先我们定义一个接口People</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> reflect;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">People</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">work</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>定义一个Teacher类，实现People接口，这个类是真实的对象</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> reflect;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Teacher</span> <span class="keyword">implements</span> <span class="title">People</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">work</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"老师教书育人..."</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"教书"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>现在我们要定义一个代理类的<strong>调用处理程序</strong>，每个代理类的调用处理程序都必须<strong>实现InvocationHandler接口</strong>，代理类如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> reflect;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkHandler</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//代理类中的真实对象  </span></span><br><span class="line">    <span class="keyword">private</span> Object obj;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WorkHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// TODO Auto-generated constructor stub</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//构造函数，给我们的真实对象赋值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WorkHandler</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.obj = obj;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="comment">//在真实的对象执行之前我们可以添加自己的操作</span></span><br><span class="line">        System.out.println(<span class="string">"before invoke。。。"</span>);</span><br><span class="line">        Object invoke = method.invoke(obj, args);</span><br><span class="line">        <span class="comment">//在真实的对象执行之后我们可以添加自己的操作</span></span><br><span class="line">        System.out.println(<span class="string">"after invoke。。。"</span>);</span><br><span class="line">        <span class="keyword">return</span> invoke;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代理类的调用处理程序的invoke方法中的第一个参数proxy好像我们从来没有用过…</p>
+<ul>
+<li><strong>接下来我们看下客户端类</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> reflect;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//要代理的真实对象</span></span><br><span class="line">        People people = <span class="keyword">new</span> Teacher();</span><br><span class="line">        <span class="comment">//代理对象的调用处理程序，我们将要代理的真实对象传入代理对象的调用处理的构造函数中，最终代理对象的调用处理程序会调用真实对象的方法</span></span><br><span class="line">        InvocationHandler handler = <span class="keyword">new</span> WorkHandler(people);</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 通过Proxy类的newProxyInstance方法创建代理对象，我们来看下方法中的参数</span></span><br><span class="line"><span class="comment">         * 第一个参数：people.getClass().getClassLoader()，使用handler对象的classloader对象来加载我们的代理对象</span></span><br><span class="line"><span class="comment">         * 第二个参数：people.getClass().getInterfaces()，这里为代理类提供的接口是真实对象实现的接口，这样代理对象就能像真实对象一样调用接口中的所有方法</span></span><br><span class="line"><span class="comment">         * 第三个参数：handler，我们将代理对象关联到上面的InvocationHandler对象上</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        People proxy = (People)Proxy.newProxyInstance(handler.getClass().getClassLoader(), people.getClass().getInterfaces(), handler);</span><br><span class="line">        <span class="comment">//System.out.println(proxy.toString());</span></span><br><span class="line">        System.out.println(proxy.work());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看下输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">before invoke。。。</span><br><span class="line">老师教书育人...</span><br><span class="line">after invoke。。。</span><br><span class="line">教书1234</span><br></pre></td></tr></table></figure>
+
+<p>​    通过上面的讲解和示例动态代理的原理及使用方法，在Spring中的两大核心IOC和AOP中的<strong>AOP(面向切面编程)的思想就是动态代理</strong>，<strong>在代理类的前面和后面加上不同的切面组成面向切面编程。</strong></p>
+<p>上面我们只讲解了Proxy中的newProxyInstance（生成代理类的方法），但是它还有其它的几个方法，我们下面就介绍一下：</p>
+<ul>
+<li>getInvocationHandler：返回指定代理实例的调用处理程序</li>
+<li>getProxyClass：给定类加载器和接口数组的代理类的java.lang.Class对象。</li>
+<li>isProxyClass：当且仅当使用getProxyClass方法或newProxyInstance方法将指定的类动态生成为代理类时，才返回true。</li>
+<li>newProxyInstance：返回指定接口的代理类的实例，该接口将方法调用分派给指定的调用处理程序。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/14/Redis%E8%AE%BE%E7%BD%AE%E5%BA%8F%E5%88%97%E5%8C%96%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/14/Redis%E8%AE%BE%E7%BD%AE%E5%BA%8F%E5%88%97%E5%8C%96%E6%96%B9%E5%BC%8F/" itemprop="url">Redis设置序列化方式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-14T00:18:02+08:00">
+                2020-08-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<h2 id="tags-Redis"><a href="#tags-Redis" class="headerlink" title="tags:Redis"></a>tags:Redis</h2><h2 id="Redis设置序列化方式"><a href="#Redis设置序列化方式" class="headerlink" title="Redis设置序列化方式:"></a>Redis设置序列化方式:</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改默认的redisTemplate的持久化方式;</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> RedisTemplate&lt;Object,Object&gt; <span class="title">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span></span>&#123;</span><br><span class="line">    RedisTemplate&lt;Object,Object&gt; redisTemplate = <span class="keyword">new</span> RedisTemplate&lt;&gt;();</span><br><span class="line">    redisTemplate.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">    Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = <span class="keyword">new</span> Jackson2JsonRedisSerializer(Object<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);</span><br><span class="line">    redisTemplate.setKeySerializer(<span class="keyword">new</span> StringRedisSerializer());</span><br><span class="line">    <span class="keyword">return</span> redisTemplate;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/11/%E7%A7%92%E6%9D%80%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/11/%E7%A7%92%E6%9D%80%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/" itemprop="url">秒杀开发笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-11T14:33:57+08:00">
+                2020-08-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="秒杀开发笔记"><a href="#秒杀开发笔记" class="headerlink" title="秒杀开发笔记"></a>秒杀开发笔记</h2><h4 id="1-mapper-xml声明："><a href="#1-mapper-xml声明：" class="headerlink" title="1. mapper.xml声明："></a>1. mapper.xml声明：</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">  <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span></span><br><span class="line"><span class="meta">  <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-分层编写后端和前端页面：-view-gt-controller-gt-service-gt-dao"><a href="#2-分层编写后端和前端页面：-view-gt-controller-gt-service-gt-dao" class="headerlink" title="2. 分层编写后端和前端页面： view -&gt; controller -&gt; service -&gt; dao"></a>2. 分层编写后端和前端页面： view -&gt; controller -&gt; service -&gt; dao</h4><h4 id="3-压力测试：Jmeter"><a href="#3-压力测试：Jmeter" class="headerlink" title="3. 压力测试：Jmeter"></a>3. 压力测试：Jmeter</h4><p>启动命令：sh jmeter</p>
+<p><img src="https://i.loli.net/2020/08/11/vBLh8yTw6gGJzqH.png" alt="image-20200811231556871"></p>
+<p>模拟100用户、每个用户进行100次访问；</p>
+<p>未使用redis缓存时：</p>
+<p><img src="https://i.loli.net/2020/08/11/M8bmnruvPWTaezs.png" alt="image-20200811232126997"></p>
+<ul>
+<li><p><strong>Throughput</strong> <strong>:吞吐量：每秒489次请求</strong></p>
+</li>
+<li><p>Average/Min/Max 响应时间：192/s</p>
+</li>
+</ul>
+<h3 id="高并发问题分析："><a href="#高并发问题分析：" class="headerlink" title="高并发问题分析："></a>高并发问题分析：</h3><p>​        在电商应用中,90%数据处理是用于<strong>读取</strong>数据,在海量数据的情况下,<strong>数据库</strong>最有可能成为<strong>高并发的瓶颈</strong>。因此<strong>提高数据库效率</strong>戓者<strong>降低数据库交互</strong>就是我们高并发首先要考虑的向题。</p>
+<p>​        电商应用中,很大ー部分数据是在一段时间内稳定不变的, 其中很大ー部分数据是一段时间內稳定不变的,例如”商 信息”、””会员信息“、“网站基本信息”等；对于稳定数据,常用两种方式进行高并发处理：</p>
+<ul>
+<li>利用<strong>缓存</strong>( Redis、 Ehcache、 Memcached..) </li>
+<li>利用<strong>静态化技术</strong>(staticize)转化为Html</li>
+</ul>
+<h4 id="4-静态数据优化：Redis缓存"><a href="#4-静态数据优化：Redis缓存" class="headerlink" title="4. 静态数据优化：Redis缓存"></a>4. 静态数据优化：Redis缓存</h4><p><strong>Redis在Springboot中的使用：</strong></p>
+<p><strong>4.1 在主程序中开启声明式缓存注解支持</strong></p>
+<p><img src="https://i.loli.net/2020/08/12/tdoGh3carImNRYv.png" alt="image-20200812000958909"></p>
+<p><strong>4.2 对service层中的方法,利用@Cacheable注解开启缓存</strong></p>
+<p><img src="https://i.loli.net/2020/08/12/AutzQpOKCnRIyJj.png" alt="image-20200812001021759"></p>
+<p><strong>4.3 在yml中配置Redis信息：</strong></p>
+<p><img src="https://i.loli.net/2020/08/12/N4ksY7B95TtE6Dj.png" alt="image-20200812001736099"></p>
+<p><strong>4.4 使用redis后的JMeter吞吐量:</strong></p>
+<p><img src="https://i.loli.net/2020/08/12/pLEWIlcMh4FujmO.png" alt="image-20200812005356116"></p>
+<h4 id="5-页面静态化技术：-以空间换时间"><a href="#5-页面静态化技术：-以空间换时间" class="headerlink" title="5. 页面静态化技术：[以空间换时间]"></a>5. 页面静态化技术：[以空间换时间]</h4><p>​        页面静态化是指将动态页面(jsp/ freemarker,…)变成html静态页面。<strong>动态页面便于管理</strong>,但是访问网页时还需要程序先处理一遍,所以导致访问速度相对较慢。而<strong>静态页面访问速度快</strong>,却又不便于管理。<strong>静态化可以将两种页面的好处集中到一起</strong>。</p>
+<p><img src="https://i.loli.net/2020/08/12/Y3BevfmSyuWcph5.png" alt="image-20200812010528716"></p>
+<p>动态生成模板对象：</p>
+<p><img src="https://i.loli.net/2020/08/12/V4z5U6iB72oQCAJ.png" alt="image-20200812112335667"></p>
+<p>注：可以使用大循环直接对所有商品页面进行静态化即可；</p>
+<h4 id="Nginx-反向代理服务器"><a href="#Nginx-反向代理服务器" class="headerlink" title="Nginx(反向代理服务器)"></a>Nginx(反向代理服务器)</h4><p>​        Nginx是一款轻量级的<strong>Web服务器/反向代理服务器</strong>, 其特点是<strong>占有内存少,并发能力强</strong>,事实上 nginx的并发能力确实在同类型的网页服务器中表现较好。</p>
+<p>安装：brew install nginx</p>
+<p>启动：brew services start nginx</p>
+<p>路径：/usr/local/etc/nginx/nginx.conf</p>
+<p>配置：在39行设置需要映射的根目录</p>
+<p><img src="https://i.loli.net/2020/08/12/jgrJukMKb3YQNxf.png" alt="image-20200812131929792"></p>
+<p><strong>使用nginx+静态化页面的并发表现：</strong></p>
+<p><img src="https://i.loli.net/2020/08/12/dor42AWTXg6Sz93.png" alt="image-20200812133244195"></p>
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4><h4 id="静态化后的额外处理："><a href="#静态化后的额外处理：" class="headerlink" title="静态化后的额外处理："></a>静态化后的额外处理：</h4><p><strong>5.1 自动计划任务静态化</strong></p>
+<p>使用Springboot的计划任务自动生成静态化页面：        </p>
+<p><img src="https://i.loli.net/2020/08/12/7hxvEYtidUk8PQG.png" alt="image-20200812133838882"></p>
+<p>找到数据库中上次修改不超过5分钟的数据：</p>
+<p><img src="https://i.loli.net/2020/08/12/vypADPTGR1bhqeZ.png" alt="image-20200812135715368"></p>
+<p>制定间隔5分钟的计划任务：</p>
+<p><img src="https://i.loli.net/2020/08/12/egyAh9nvZfuHIJR.png" alt="image-20200812140403359"></p>
+<p><strong>5.2 动静态数据分离：</strong></p>
+<p>​    页面静态化执行效率固然高,但往往在页面中也存在动态数据。例如“评论”的内容就一直在不断变化肯定不能对其静态化处理。<strong>遇到这种动态数据需要在静态页面中使用AJAX动态加载后端产生的数据</strong>。</p>
+<p>​    <img src="https://i.loli.net/2020/08/12/FRUkviKuDQEgtqN.png" alt="image-20200812141917901"></p>
+<ul>
+<li>使用ajax 加载动态的评论内容，写在goods.ftlh中：</li>
+</ul>
+<p><img src="https://i.loli.net/2020/08/12/UFaR3uqochsnTbm.png" alt="image-20200812232744872"></p>
+<p>再重新生成全部的nginx静态化页面；</p>
+<p>注意：此时，从nginx服务器访问网页，还不能找到对应的评论内容:</p>
+<p><img src="https://i.loli.net/2020/08/12/5EvgojeKDYPzJ1U.png" alt="image-20200812234200597"></p>
+<p><strong>因此需要配置Nginx代理</strong>：</p>
+<p><img src="https://i.loli.net/2020/08/12/GK3D965RzEtbpaC.png" alt="image-20200812235453829"></p>
+<p>​        通过此配置可以将 nginx的 /evaluate/页面代理到tomcat服务器的<a href="http://locathost:8080/evaluate" target="_blank" rel="noopener">http://locathost:8080/evaluate</a>; 注意要保持开启tomcat服务器，否则无法成功代理。</p>
+<p><strong>总结动静分离的效果：</strong>访问静态化的页面时，如果需要访问动态数据：可以通过配置Nginx代理，将某页面代理到tomcat服务器，实现获取动态数据。</p>
+<h4 id="6-秒杀问题分析："><a href="#6-秒杀问题分析：" class="headerlink" title="6. 秒杀问题分析："></a>6. 秒杀问题分析：</h4><p>​        秒杀我们日常开发中最常见的高并发场景。<strong>秒杀的特点</strong>：1）瞬超高访问量;  2)商品总量有限,先到先得;  3)有明确的开始、结束时间。</p>
+<p>秒杀活动常见<strong>两个挑战</strong>:</p>
+<ul>
+<li><strong>高并发:</strong> 基本主流电商的秒杀QPS峰值都在100万+。</li>
+<li><strong>避免超卖:</strong> 如何避免购买商品人数不超过商品数量上限,这是要面临的难题。</li>
+</ul>
+<img src="https://i.loli.net/2020/08/13/JBqLMRbHmCD6SKr.png" alt="image-20200813141732943" style="zoom:50%;" />
+
+<img src="https://i.loli.net/2020/08/13/TxRobN2tv5E1KYM.png" alt="image-20200813141751633 " style="zoom:50%;" />
+
+<p><strong>商品库存count的改变未保证对其他线程的可见性，因此发生超卖问题。</strong></p>
+<p>解决方法：有多种方案来解决这个问题，我们主要看3种方案：</p>
+<ul>
+<li><p>悲观锁：影响性能；</p>
+</li>
+<li><p>乐观锁：高并发下失败率高，可引入重入机制在失败后重复尝试；</p>
+</li>
+<li><p><strong>Redis+ Lua</strong></p>
+</li>
+<li><h4 id="使用Redis预减库存-gt-解决超卖问题："><a href="#使用Redis预减库存-gt-解决超卖问题：" class="headerlink" title="使用Redis预减库存-&gt; 解决超卖问题："></a>使用Redis预减库存-&gt; 解决超卖问题：</h4></li>
+</ul>
+<p><strong>为什么选择 Redis</strong>：</p>
+<ul>
+<li>单线程模型</li>
+<li>内存存储,高达10WQPS </li>
+<li>天生分布式支持</li>
+</ul>
+<img src="https://i.loli.net/2020/08/13/Na9RSKfYqx7lkQg.png" alt="image-20200813215318480 " style="zoom:50%;" />
+
+
+
+<h4 id="实现过程："><a href="#实现过程：" class="headerlink" title="实现过程："></a>实现过程：</h4><p><strong>6.1 编写mapper 数据库操作</strong>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">//查询出符合秒杀时间的商品：</span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.geekouc.babytunseckill.dao.PromotionSecKillDAO"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findUnstartSecKill"</span> <span class="attr">resultType</span>=<span class="string">"com.geekouc.babytunseckill.entity.PromotionSecKill"</span>&gt;</span></span><br><span class="line">        select * from t_promotion_seckill </span><br><span class="line">      	where now() BETWEEN start_time AND end_time and status = 0</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br><span class="line">//更新秒杀状态：</span><br><span class="line"><span class="tag">&lt;<span class="name">update</span> <span class="attr">id</span>=<span class="string">"update"</span> <span class="attr">parameterType</span>=<span class="string">"com.geekouc.babytunseckill.entity.PromotionSecKill"</span>&gt;</span></span><br><span class="line">        update t_promotion_seckill</span><br><span class="line">        set goods_id = #&#123;goodsId&#125;,ps_count = #&#123;psCount&#125;,</span><br><span class="line">  					start_time = #&#123;startTime&#125;, end_time = #&#123;endTime&#125;,</span><br><span class="line">            status = #&#123;status&#125;, current_price = #&#123;currentPrice&#125; </span><br><span class="line">  			where ps_id = #&#123;psId&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">update</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>6.2 秒杀调度任务</strong>：每隔5秒检查符合秒杀时间的商品，使其进入秒杀状态,并将其放入Redis的List：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecKillTask</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> PromotionSecKillDAO promotionSecKillDAO;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate redisTemplate;</span><br><span class="line">    <span class="comment">//RedisTemplate是Spring封装的Redis操作类,提供了一系列操作redis的模板方法</span></span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Scheduled</span>(cron = <span class="string">"0/5 * * * * ?"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startSecKill</span><span class="params">()</span></span>&#123;</span><br><span class="line">        List&lt;PromotionSecKill&gt; list = promotionSecKillDAO.findUnstartSecKill();</span><br><span class="line">        <span class="keyword">for</span> (PromotionSecKill ps : list) &#123;</span><br><span class="line">          <span class="comment">//删除以前重复的活动任务缓存</span></span><br><span class="line">            redisTemplate.delete(<span class="string">"seckill:count:"</span> + ps.getPsId());</span><br><span class="line">            System.out.println(ps.getPsId() + <span class="string">"秒杀活动已启动 !"</span>);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; ps.getPsCount(); i++) &#123;</span><br><span class="line">              <span class="comment">//有几个库存商品,则初始化几个list对象;list中先存入商品ID;</span></span><br><span class="line">              redisTemplate.opsForList().rightPush(<span class="string">"seckill:count:"</span> + ps.getPsId(),ps.getGoodsId());</span><br><span class="line">            &#125;</span><br><span class="line">            ps.setStatus(<span class="number">1</span>);</span><br><span class="line">            promotionSecKillDAO.update(ps);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>6.3 使用Redis实现库存预减</strong>：如果能从秒杀商品队列中获取有效的goodsId,就将psId和对应的userId放入Redis的set中:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PromotionSecKillService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> PromotionSecKillDAO promotionSecKillDAO;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;Object,Object&gt; redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processSecKill</span><span class="params">(Long psId, String userid, Integer num)</span> <span class="keyword">throws</span> SecKillException </span>&#123;</span><br><span class="line">    <span class="comment">//如果能从秒杀商品队列中获取有效的goodsId,就将psId和对应的userId放入Redis的set中;</span></span><br><span class="line">        PromotionSecKill ps = promotionSecKillDAO.findById(psId);</span><br><span class="line">        <span class="keyword">if</span> (ps == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">//秒杀活动不存在:</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SecKillException(<span class="string">"该秒杀活动不存在!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (ps.getStatus() == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SecKillException(<span class="string">"该秒杀活动还未开始!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (ps.getStatus() == <span class="number">2</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SecKillException(<span class="string">"该秒杀活动已结束!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Integer goodsId = (Integer) redisTemplate.opsForList().leftPop(<span class="string">"seckill:count:"</span> + ps.getPsId());</span><br><span class="line">        <span class="keyword">if</span> (goodsId != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">//先判断用户id的set集合中是否已经存在此id,若已存在则不允许再次抢购</span></span><br><span class="line">            <span class="keyword">boolean</span> isExisted = redisTemplate.opsForSet().isMember(<span class="string">"seckill:users:"</span> + ps.getPsId(), userid);</span><br><span class="line">            <span class="keyword">if</span> (!isExisted) &#123;</span><br><span class="line">                System.out.println(<span class="string">"恭喜"</span> + userid + <span class="string">"抢到商品了,快去下单吧!"</span>);</span><br><span class="line">                redisTemplate.opsForSet().add(<span class="string">"seckill:users:"</span> + ps.getPsId(), userid);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//若该用户已抢购过，抛出自定义异常，并再将此商品加回队列的尾部；</span></span><br><span class="line">                redisTemplate.opsForList().rightPush(<span class="string">"seckill:count:"</span> + ps.getPsId(),ps.getGoodsId());</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> SecKillException(<span class="string">"抱歉,您已经参加过此活动,请勿重复抢购!"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SecKillException(<span class="string">"抱歉,该商品已被抢光,下次再来吧!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>6.4 Controller层</strong>：控制前端页面访问相应页面时调用秒杀方法，并返回结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecKillController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    PromotionSecKillService promotionSecKillService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/seckill"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, String&gt; <span class="title">processSecKill</span><span class="params">(Long psid, String userid)</span> </span>&#123;</span><br><span class="line">        Map&lt;String, String&gt; result = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            promotionSecKillService.processSecKill(psid, userid, <span class="number">1</span>);</span><br><span class="line">            result.put(<span class="string">"code"</span>, <span class="string">"0"</span>);</span><br><span class="line">            result.put(<span class="string">"message"</span>, <span class="string">"success"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SecKillException e) &#123;</span><br><span class="line">            result.put(<span class="string">"code"</span>, <span class="string">"500"</span>);</span><br><span class="line">            result.put(<span class="string">"message"</span>, e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>6.5</strong> 设置前端seckill.html的抢购按钮入口，告诉用户抢购结果：</p>
+<p><img src="https://i.loli.net/2020/08/14/1PCdutoH9sNxJDK.png" alt="image-20200814175009551"></p>
+<p><strong>6.6</strong> 秒杀活动结束后：</p>
+<p>将此秒杀任务状态设为已过期,并更新此状态,并清除redis中已过秒杀时间的商品：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scheduled</span>(cron = <span class="string">"0/5 * * * * ?"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">endSecKill</span><span class="params">()</span></span>&#123;</span><br><span class="line">        List&lt;PromotionSecKill&gt; psList = promotionSecKillDAO.findExpireSecKill();</span><br><span class="line">        <span class="keyword">for</span> (PromotionSecKill ps : psList) &#123;</span><br><span class="line">            System.out.println(ps.getPsId()+<span class="string">"秒杀活动已结束!"</span>);</span><br><span class="line">            <span class="comment">//秒杀结束后,将此秒杀任务状态设为已过期,并更新此状态</span></span><br><span class="line">            ps.setStatus(<span class="number">2</span>);</span><br><span class="line">            promotionSecKillDAO.update(ps);</span><br><span class="line">            <span class="comment">//删除redis中已过秒杀时间的商品;</span></span><br><span class="line">            redisTemplate.delete(<span class="string">"seckill:count"</span> + ps.getPsId());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-使用RabbitMQ：削峰、限流"><a href="#7-使用RabbitMQ：削峰、限流" class="headerlink" title="7. 使用RabbitMQ：削峰、限流"></a>7. 使用RabbitMQ：削峰、限流</h4><img src="https://i.loli.net/2020/08/15/tskMaEXieUHcpBD.png" alt="image-20200815003046510" style="zoom:50%;" />
+
+
+
+
+
+<img src="https://i.loli.net/2020/08/15/M5pc3rfOYlAHmX4.png" alt="image-20200815003054692 " style="zoom:50%;" />
+
+<img src="https://i.loli.net/2020/08/15/PyB7XD2A4kaS3wJ.png" alt="image-20200815140119283 " style="zoom:50%;" />
+
+<p>7.0 配置好RabbitMQ的环境，创建一个Exchange和一个队列；</p>
+<p>7.1 编写Service <strong>向MQ队列发送订单号（速度快）</strong>，并在Controller层调用此方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">sendOrderToQueue</span><span class="params">(String userid)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"准备向队列发送信息..."</span>);</span><br><span class="line">        <span class="comment">//订单基本信息;</span></span><br><span class="line">        HashMap&lt;String,String&gt; data = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        data.put(<span class="string">"userid"</span>,userid);</span><br><span class="line">        String orderNo = UUID.randomUUID().toString();</span><br><span class="line">        data.put(<span class="string">"orderNo"</span>,orderNo);</span><br><span class="line">        <span class="comment">//可附加额外的订单信息,如电话 地址等;</span></span><br><span class="line">        rabbitTemplate.convertAndSend(<span class="string">"exchange-order"</span>,<span class="keyword">null</span>,data);</span><br><span class="line">        <span class="keyword">return</span> orderNo;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/seckill"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String,Object&gt; <span class="title">processSecKill</span><span class="params">(Long psid, String userid)</span> </span>&#123;</span><br><span class="line">        Map&lt;String, Object&gt; result = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            promotionSecKillService.processSecKill(psid, userid, <span class="number">1</span>);</span><br><span class="line">            String orderNo = promotionSecKillService.sendOrderToQueue(userid);</span><br><span class="line">            HashMap&lt;String,String&gt; data = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">            data.put(<span class="string">"orderNo"</span>,orderNo); <span class="comment">//生成订单编号</span></span><br><span class="line">            result.put(<span class="string">"code"</span>, <span class="string">"0"</span>);</span><br><span class="line">            result.put(<span class="string">"message"</span>, <span class="string">"success"</span>);</span><br><span class="line">            result.put(<span class="string">"data"</span>,data);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SecKillException e) &#123;</span><br><span class="line">            result.put(<span class="string">"code"</span>, <span class="string">"500"</span>);</span><br><span class="line">            result.put(<span class="string">"message"</span>, e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>7.2 同时，将<strong>生成的订单号利用ajax回调给前端（速度快）</strong>：</p>
+<img src="https://i.loli.net/2020/08/15/qsf5XM6z1ovdJKN.png" alt="image-20200815114423021 " style="zoom:50%;" />
+
+<p>7.3 <strong>配置Rabbit消费者信息</strong>，并新建一个消费者类：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">rabbitmq:</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">localhost</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">5672</span></span><br><span class="line">  <span class="attr">username:</span> <span class="string">guest</span></span><br><span class="line">  <span class="attr">password:</span> <span class="string">guest</span></span><br><span class="line">  <span class="attr">virtual-host:</span> <span class="string">/</span></span><br><span class="line">  <span class="attr">listener:</span></span><br><span class="line">    <span class="attr">simple:</span></span><br><span class="line">      <span class="comment">#定义消费者最多同时处理10个消息</span></span><br><span class="line">      <span class="attr">prefetch:</span> <span class="number">10</span></span><br><span class="line">      <span class="comment">#消息手动确认</span></span><br><span class="line">      <span class="attr">acknowledge-mode:</span> <span class="string">manual</span></span><br></pre></td></tr></table></figure>
+
+<p>7.4 @RabbitHandler注解：<strong>自动从RabbitMQ队列中获取订单号，并实例化一个订单写入数据库中（速度慢）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderConsumer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> OrderDAO orderDAO;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitListener</span>(    <span class="comment">//绑定创建好的rabbitmq交换机和队列</span></span><br><span class="line">            bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">                  value = <span class="meta">@Queue</span>(value = <span class="string">"queue-order"</span>),</span><br><span class="line">                  exchange = <span class="meta">@Exchange</span>(value = <span class="string">"exchange-order"</span>,type = <span class="string">"fanout"</span>)</span><br><span class="line">            )</span><br><span class="line">    )</span><br><span class="line">    <span class="meta">@RabbitHandler</span>  <span class="comment">//消费者获取订单数据,插入到数据库中;</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(@Payload Map&lt;String,Object&gt; data, Channel channel,</span></span></span><br><span class="line"><span class="function"><span class="params">                              @Headers  Map&lt;String,Object&gt; headers)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"========获取到订单数据"</span>+data+<span class="string">"========"</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">//sleep 500ms,模拟对接支付、物流系统、日志登记...</span></span><br><span class="line">                Thread.sleep(<span class="number">500</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            Order order = <span class="keyword">new</span> Order();</span><br><span class="line">            order.setOrderNo(data.get(<span class="string">"orderNo"</span>).toString());</span><br><span class="line">            order.setOrderStatus(<span class="number">0</span>);</span><br><span class="line">            order.setUserid(data.get(<span class="string">"userid"</span>).toString());</span><br><span class="line">            order.setRecvName(<span class="string">"xxx"</span>);</span><br><span class="line">            order.setRecvAddress(<span class="string">"xxx"</span>);</span><br><span class="line">            order.setRecvMobile(<span class="string">"138********"</span>);</span><br><span class="line">            order.setAmount(<span class="number">19.8f</span>);</span><br><span class="line">            order.setPostage(<span class="number">0f</span>);</span><br><span class="line">            order.setCreateTime(<span class="keyword">new</span> Date());</span><br><span class="line">            orderDAO.insert(order);</span><br><span class="line">            Long tag = (Long)headers.get(AmqpHeaders.DELIVERY_TAG);</span><br><span class="line">            channel.basicAck(tag,<span class="keyword">false</span>);<span class="comment">//消息确认,false:只进行单个接收 不进行批量接收</span></span><br><span class="line">            System.out.println(data.get(<span class="string">"orderNo"</span>+<span class="string">"订单已创建"</span>));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>7.5 由于生产者和消费者是异步的关系，因此创建一个”正在创建订单,请稍后…”的页面，作为过渡：</p>
+<img src="https://i.loli.net/2020/08/15/kTVd79Kz4Pyhmnr.png" alt="image-20200815145349034 " style="zoom:50%;" />
+
+<p>同时，<strong>检查订单号是否已经在数据库中成功生成</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//检查订单号是否已经在数据库中成功生成</span></span><br><span class="line"><span class="meta">@GetMapping</span>(<span class="string">"/checkorder"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ModelAndView <span class="title">checkOrder</span><span class="params">(String orderNo)</span></span>&#123;</span><br><span class="line">    ModelAndView mav = <span class="keyword">new</span> ModelAndView();</span><br><span class="line">    Order order = promotionSecKillService.checkOrder(orderNo);</span><br><span class="line">    <span class="keyword">if</span>(order != <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="comment">//代表订单已在数据库中创建好了</span></span><br><span class="line">        mav.addObject(<span class="string">"order"</span>,order);</span><br><span class="line">        mav.setViewName(<span class="string">"/order"</span>);</span><br><span class="line">        <span class="comment">//跳转到order页面,显示订单信息;</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        mav.addObject(<span class="string">"orderNo"</span>,orderNo);</span><br><span class="line">        mav.setViewName(<span class="string">"/waiting"</span>);</span><br><span class="line">        <span class="comment">//跳转到等待页面...在等待页面等待三秒后再次尝试检查订单号...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mav;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="8-Nginx-负载均衡"><a href="#8-Nginx-负载均衡" class="headerlink" title="8. Nginx 负载均衡"></a>8. Nginx 负载均衡</h4><img src="https://i.loli.net/2020/08/15/ovnwH7kT5FK3g1P.png" alt="image-20200815155440698 " style="zoom:50%;" />
+
+<p>Nginx<strong>六种负载均衡策略</strong>：</p>
+<ul>
+<li><strong>Default - 轮询策略</strong> </li>
+<li><strong>Least connected - 最少连接策略</strong></li>
+<li><strong>Weighted - 权重策略</strong></li>
+<li><strong>IP Hash - IP绑定策略</strong> ：高并发下不推荐使用，因为会使负载不均衡</li>
+<li>fair-按响应时间(第三方) </li>
+<li>url hash-url分配策略(第三方)</li>
+</ul>
+<p><strong>8.1 使用Nginx代理后端服务器</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#后端服务器池</span><br><span class="line">upstream babytun &#123;</span><br><span class="line">	#least_conn; #最少连接策略</span><br><span class="line">	#ip_hash;	#ip_hash策略</span><br><span class="line"></span><br><span class="line">	server 192.168.1.3:8001 weight&#x3D;5; #按照权重分配</span><br><span class="line">	server 192.168.1.3:8002 weight&#x3D;2;</span><br><span class="line">	server 192.168.1.3:8003 weight&#x3D;1;</span><br><span class="line">	server 192.168.1.3:8004 weight&#x3D;2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">		#nginx通过80端口提供服务</span><br><span class="line">    listen       80;  </span><br><span class="line">    #使用babytun服务器池进行后端处理</span><br><span class="line">    location &#x2F;&#123;</span><br><span class="line">    	proxy_pass http:&#x2F;&#x2F;babytun;</span><br><span class="line">    	proxy_set_header Host $host;</span><br><span class="line">    	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>​        配置完成后，只需访问192.168.1.3/goods?gid=1234 即可访问我们的页面，nginx默认按照轮询策略在4台server之间切换服务器。</p>
+<p><strong>8.2 Nginx分布式Session同步问题：</strong></p>
+<p>​        例如使用Nginx负载均衡时,用户登录后,再刷新页面可能会代理到另一台server,而此台server没有之前的session,从而导致丢失登录状态。</p>
+<p><strong>解决办法</strong>：<strong>将 Session转存到 Redis中实现 Session 共享访问</strong>:</p>
+<p><img src="https://i.loli.net/2020/08/15/vSYuaK24FeN63yi.png" alt="image-20200815215155079 "></p>
+<ul>
+<li>pom中引入Spring-Session依赖以及Redis依赖</li>
+<li>主程序启用@EnableRedisHttpSession即可；</li>
+</ul>
+<p><strong>Spring-Session将自动监听Session，并将其保存到Redis中</strong>！</p>
+<p>​        这样，用户登录上去之后，之后无论是再代理到哪台服务器都会一直拥有这个Session,从而保持登录状态。</p>
+<h4 id="9-Nginx缓存静态资源降低Tomcat压力："><a href="#9-Nginx缓存静态资源降低Tomcat压力：" class="headerlink" title="9. Nginx缓存静态资源降低Tomcat压力："></a>9. Nginx缓存静态资源降低Tomcat压力：</h4><p><strong>9.1 图片、样式等静态资源</strong>不再经过Tomcat服务器，直接由Nginx服务器指向指定文件夹：</p>
+<img src="https://i.loli.net/2020/08/16/7wy9ZbANBcmxMpz.png" alt="image-20200816002658224 " style="zoom:50%;" />
+
+<p>在/usr/local/etc/nginx/nginx.conf中修改配置即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#临时文件夹</span><br><span class="line">    proxy_temp_path &#x2F;Users&#x2F;tianjirong&#x2F;Documents&#x2F;babytun-lb&#x2F;nginx-temp;</span><br><span class="line">    #设置缓存目录;</span><br><span class="line">    #levels代表采用1:2,即采用两级目录的形式保存静态缓存文件，同时文件名进行了MD5编码;</span><br><span class="line">    #keys_zone 定义缓存名称 以及 内存大小使用100M交换空间;</span><br><span class="line">    #如果某个缓存文件超过7天未使用,则删除之;</span><br><span class="line">    #文件夹最大不超过20g,超过后自动删除访问频率最低的缓存文件;</span><br><span class="line">    proxy_cache_path &#x2F;Users&#x2F;tianjirong&#x2F;Documents&#x2F;babytun-lb&#x2F;nginx-cache levels&#x3D;1:2 keys_zone&#x3D;babytun-cache:100m inactive&#x3D;7d max_size&#x3D;20g;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">	#nginx通过80端口提供服务</span><br><span class="line">    listen       80;  </span><br><span class="line"></span><br><span class="line">    #静态资源缓存,利用正则表达式匹配url,匹配成功的则执行内部逻辑,~*表示不区分大小写:</span><br><span class="line">    location ~* \.(gif|jpg|css|png|js|woff|html)(.*)&#123;</span><br><span class="line">        proxy_pass http:&#x2F;&#x2F;babytun;</span><br><span class="line">        proxy_set_header Host $host;</span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">        proxy_cache babytun-cache;</span><br><span class="line">        #如果资源相应状态码为200-&gt;成功; 302-&gt;暂时性重定向时,资源缓存文件有效期1天;</span><br><span class="line">        proxy_cache_valid 200 302 24h;</span><br><span class="line">        proxy_cache_valid 301 24h;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：当需要缓存<strong>.html</strong>的页面时，需要保证该页面是不经常变动的，否则不应该缓存它。</p>
+<p><strong>9.2 Nginx使用Gzip资源压缩：节省带宽</strong>：</p>
+<ul>
+<li>利用浏览器支持的Gzip压缩, <strong>nginx打包压缩并传输 css、js等静态资源</strong>,可将带宽压力降低30%~70%</li>
+</ul>
+<p><img src="https://i.loli.net/2020/08/16/5TFjhuVRGq314zd.png" alt="image-20200816132844932"></p>
+<p>在/usr/local/etc/nginx/nginx.conf中开启Gzip即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#开启nginx Gzip压缩</span><br><span class="line">gzip  on;</span><br><span class="line">#超过1K的文件才压缩</span><br><span class="line">gzip_min_length 1k;</span><br><span class="line">#压缩哪些类型:对文本类型压缩效果很好 对图片效果不好</span><br><span class="line">gzip_types text&#x2F;plain application&#x2F;javascript text&#x2F;css application&#x2F;x-javascript;</span><br><span class="line">#当使用低版本IE浏览器时禁用压缩</span><br><span class="line">gzip_disable &quot;MSIE [1-6]\.&quot;;</span><br><span class="line">#压缩使用的缓存,每个内存也为4K,申请32倍;一般这样写就可以</span><br><span class="line">gzip_buffers 32 4k;</span><br><span class="line">#最重要: 设置压缩级别: 1-9 越大压缩比越高,但浪费CPU资源,建议1-4即可</span><br><span class="line">gzip_comp_level 1;</span><br></pre></td></tr></table></figure>
+
+<p><strong>9.3 使用CDN：解决带宽瓶颈、加速访问速度</strong></p>
+<p>​        可将整个layui文件夹上传到CDN中,这样传输这些资源的时候,流量就不会走本地服务器,而是直接走CDN的服务器,实现解决带宽瓶颈和加速访问速度！</p>
+<p><strong>使用方法</strong>：</p>
+<ul>
+<li>开通阿里云等<strong>OSS</strong>服务,向OSS中上传我们的资源</li>
+<li>开通阿里云<strong>CDN</strong>服务,将OSS中的资源分发到各个CDN服务器</li>
+<li>将自己的<strong>域名绑定映射</strong>到CDN服务器</li>
+<li>在前端页面中将所用资源的本地路径改为自己域名中的<strong>远程路径</strong>即可</li>
+</ul>
+<h4 id="10-流量防刷与反爬虫："><a href="#10-流量防刷与反爬虫：" class="headerlink" title="10. 流量防刷与反爬虫："></a>10. 流量防刷与反爬虫：</h4><p><strong>实现思路</strong>：</p>
+<ul>
+<li><p>Redist提供了TTL有效期特性(<strong>设置超时时间</strong>)</p>
+</li>
+<li><p>对于每一个用户,<strong>在 Redisi记录访向次数</strong>：</p>
+<p>例如​ key:188.38.12.33  value:39 超时时间:60s</p>
+</li>
+<li><p><strong>用户每访问1次,对应计数器+1</strong>,超过上限(30)则停止服务</p>
+</li>
+<li><p>如计数器<strong>超过100则认为爬虫攻击</strong>,永久加入黑名单</p>
+</li>
+<li><p>1分钟后key销毁,重新开始计数</p>
+</li>
+</ul>
+<p><strong>实现过程</strong>：</p>
+<ol>
+<li>编写SpringBoot的AOP拦截器,</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//AOP拦截器功能:流量防刷</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AntiRefreshInterceptor</span> <span class="keyword">implements</span> <span class="title">HandlerInterceptor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span> <span class="comment">//RedisTemplate,用于筒化 Redis操作,在IOC容器中自动被初始化</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;Object,Object&gt; redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        response.setContentType(<span class="string">"text/html;charset=utf-8"</span>); <span class="comment">//设置提示信息的字符集</span></span><br><span class="line">        String clientIp = request.getRemoteAddr();<span class="comment">//获取客户端IP</span></span><br><span class="line">        String userAgent = request.getHeader(<span class="string">"User-Agent"</span>);<span class="comment">//获取客户端浏览器信息</span></span><br><span class="line">        String client = <span class="string">"anti-refresh:"</span> + DigestUtils.md5Hex(clientIp + <span class="string">"_"</span> + userAgent);<span class="comment">//用MD5摘要来标识一个用户</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//若此IP在黑名单中,则直接返回false;</span></span><br><span class="line">        <span class="keyword">if</span>(redisTemplate.hasKey(<span class="string">"anti-refresh:blackList"</span>))&#123;</span><br><span class="line">            <span class="keyword">if</span>(redisTemplate.opsForSet().isMember(<span class="string">"anti-refresh:blackList"</span>,client))&#123;</span><br><span class="line">                response.getWriter().println(<span class="string">"检测到您的IP访问异常,您已被加入黑名单!"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        Integer num = (Integer) redisTemplate.opsForValue().get(client);<span class="comment">//记录1分钟内的访问次数</span></span><br><span class="line">        <span class="keyword">if</span>(num == <span class="keyword">null</span>)&#123;<span class="comment">//第一次访问</span></span><br><span class="line">            redisTemplate.opsForValue().set(client,<span class="number">1</span>,<span class="number">60</span>, TimeUnit.SECONDS); <span class="comment">//放入redis,有效期60S</span></span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">if</span>(num &gt; <span class="number">20</span> &amp;&amp; num &lt; <span class="number">40</span>)&#123;</span><br><span class="line">                response.getWriter().println(<span class="string">"请求过于频繁,请1分钟后重试!"</span>);</span><br><span class="line">                redisTemplate.opsForValue().increment(client,<span class="number">1</span>); <span class="comment">//每访问一次redis的值+1;</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(num &gt;= <span class="number">40</span>)&#123;</span><br><span class="line">                redisTemplate.opsForSet().add(<span class="string">"anti-refresh:blackList"</span>,clientIp);</span><br><span class="line">                response.getWriter().println(<span class="string">"检测到您的IP访问异常,您已被加入黑名单!"</span>);</span><br><span class="line">                System.out.println(<span class="string">"IP"</span>+clientIp+<span class="string">"访问异常,已被加入黑名单!"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                redisTemplate.opsForValue().increment(client,<span class="number">1</span>); <span class="comment">//每访问一次redis的值+1;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>注入拦截器：写一个@Configuration类即可.可选择需要拦截的页面,如:”/goods”</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span>  <span class="title">WebConfig</span> <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> AntiRefreshInterceptor antiRefreshInterceptor;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="comment">//注入拦截器</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addInterceptor(antiRefreshInterceptor).addPathPatterns(<span class="string">"/goods"</span>);<span class="comment">//作用的URL;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/10/%E7%A7%8B%E6%8B%9B%E5%BE%85%E6%8A%95%E9%80%92/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -471,7 +1100,7 @@
       
         
           
-            <h2 id="Redis之事务"><a href="#Redis之事务" class="headerlink" title="Redis之事务"></a>Redis之事务</h2><p><strong>Redis事务的概念：</strong></p>
+            <h2 id="1-Redis之事务"><a href="#1-Redis之事务" class="headerlink" title="1. Redis之事务"></a>1. Redis之事务</h2><p><strong>Redis事务的概念：</strong></p>
 <p>　　Redis 事务的本质是一组命令的集合。事务支持一次执行多个命令，一个事务中所有命令都会被序列化。在事务执行过程，会按照顺序串行化执行队列中的命令，其他客户端提交的命令请求不会插入到事务执行命令序列中。</p>
 <p>　　总结：redis事务就是一次性、顺序性、排他性的执行一个队列中的一系列命令。　</p>
 <p><strong>Redis事务没有隔离级别的概念：</strong></p>
@@ -1459,290 +2088,13 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/08/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E4%BA%8B%E5%8A%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="田济荣">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="GeekOUC">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/07/08/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E4%BA%8B%E5%8A%A1/" itemprop="url">数据库的事务</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-08T17:09:04+08:00">
-                2020-07-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="数据库中的事务"><a href="#数据库中的事务" class="headerlink" title="数据库中的事务"></a>数据库中的事务</h2><p><strong>事务(Transaction)，是我们关系型数据库中非常重要的一个概念，它要符合ACID特性。是由一组SQL语句组成的一个程序执行单元(Unit)，该执行单元要么成功Commit,要么失败Rollback。</strong></p>
-<p><img src="https://i.loli.net/2020/07/08/BEQP8GVJfY3sFKm.png" alt="事务.png"></p>
-<h2 id="ACID特性："><a href="#ACID特性：" class="headerlink" title="ACID特性："></a>ACID特性：</h2><h3 id="1）Atomicity-原子性-："><a href="#1）Atomicity-原子性-：" class="headerlink" title="1）Atomicity (原子性)："></a>1）Atomicity (原子性)：</h3><p><strong>指事务是一个不可再分割的工作单元，事务中的操作要么都发生，要么都不发生。</strong></p>
-<p>通俗的说：我们有一堆的事情，它要么全做，要么全都不做，不能只做一半。比如我们的银行转账。</p>
-<p><img src="https://i.loli.net/2020/07/08/ybKq3QrgAepixch.png" alt="image-20200708182727694"></p>
-<h3 id="2）Consistency-一致性"><a href="#2）Consistency-一致性" class="headerlink" title="2）Consistency (一致性):"></a>2）Consistency (一致性):</h3><p><strong>指事务开始之前和事务结束以后，数据库的完整性约束没有被破坏。</strong></p>
-<p>通俗的说：我和你的钱加起来一共是2000，那么不管我和你之间如何转账，转几次账，事务结束后我们的钱相    加起来应该还得是2000，这就是事务的一致性。</p>
-<p><img src="https://i.loli.net/2020/07/08/CpxwZEXob6PFz17.png" alt="image-20200708182806657"></p>
-<h3 id="3-Isolation-隔离性-（最重要）"><a href="#3-Isolation-隔离性-（最重要）" class="headerlink" title="3) Isolation (隔离性):（最重要）"></a>3) Isolation (隔离性):（最重要）</h3><p><strong>指多个事务并发访问时，事务之间是隔离的，一个事务不应该影响其它事务运行效果。</strong></p>
-<p>通俗的说：多个用户并发访问操作同一张表时，数据库为每一个用户开启的事务，不能被其他事务的操作所干    扰，多个并发事务之间要相互隔离。    </p>
-<p>注：数据库定义了<strong>4个隔离的级别</strong>：</p>
-<ol>
-<li>读取未提交；</li>
-<li>读取已提交；</li>
-<li>可重复读；</li>
-<li>串行化;</li>
-</ol>
-<h3 id="4-Durability-持久性"><a href="#4-Durability-持久性" class="headerlink" title="4)Durability (持久性):"></a>4)Durability (持久性):</h3><p><strong>指事务所对数据库所作的更改便持久的保存在数据库之中，并不会被回滚。</strong></p>
-<p>通俗的说：比如我将事务做完之后，这个结果是能持久下去的并能一直存下去。不管断电还是其他情况。</p>
-<p><img src="https://i.loli.net/2020/07/08/QzkT8M3B6EaNd4o.png" alt="image-20200708183210917"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/29/test/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="田济荣">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="GeekOUC">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/06/29/test/" itemprop="url">test</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-29T09:08:36+08:00">
-                2020-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Hello</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+  </nav>
+
 
 
           </div>
@@ -1786,7 +2138,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
