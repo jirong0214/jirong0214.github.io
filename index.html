@@ -278,6 +278,384 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/17/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url">多线程与并发编程学习笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-17T16:24:12+08:00">
+                2020-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<h2 id="tags-多线程"><a href="#tags-多线程" class="headerlink" title="tags:多线程"></a>tags:多线程</h2><h2 id="多线程与并发编程学习笔记"><a href="#多线程与并发编程学习笔记" class="headerlink" title="多线程与并发编程学习笔记"></a>多线程与并发编程学习笔记</h2><p><strong>1. 什么是JUC</strong>：java.util.concurrent 并发工具包；</p>
+<p><strong>2. 线程与进程</strong>：</p>
+<p><strong>进程</strong>：一段代码程序执行的过程；一个进程可包含多个线程；</p>
+<p>​        在 Java 本身启动时会创建若干个线程，除了 main 线程之外，还有Monitor Ctrl-Break，Signal Dispatcher，Finalizer，Reference Handler。</p>
+<p><strong>线程</strong>：</p>
+<p>​        Java真的能开启多个线程吗？否。是使用的<strong>native方法start0()开启的线程</strong>。因为JAVA运行在虚拟机上，无法直接操作硬件。</p>
+<p><strong>线程6大状态</strong>：（可在Thread类的源码中找到）</p>
+<p>NEW -&gt; RUNNABLE -&gt; BLOCKED -&gt;WAITING -&gt; TIME_WAITING -&gt; TERMINATED</p>
+<p><strong>3. 并发与并行</strong>：</p>
+<p><strong>并发</strong>：多线程操作同一个资源；多线程是模拟出来的，是<strong>CPU时间片轮转快速交替执行</strong>而已。并发编程是为了:充分利用CPU性能资源.</p>
+<p><strong>并行</strong>：CPU<strong>多个物理核心</strong>,多个线程可以同时执行;可<strong>使用线程池</strong>：</p>
+<p><strong>线程池的数量</strong>：</p>
+<p><strong>IO密集型</strong>=2Ncpu（可以测试后自己控制大小，2Ncpu一般没问题）（常出现于线程中：数据库数据交互、文件上传下载、网络数据传输等等）</p>
+<p><strong>计算密集型</strong>=Ncpu（常出现于线程中：复杂算法）</p>
+<p><strong>4. wait/sleep的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>wait</th>
+<th>sleep</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>所属的类</strong></td>
+<td>Object</td>
+<td>Thread</td>
+</tr>
+<tr>
+<td><strong>是否释放锁</strong></td>
+<td>释放了锁</td>
+<td>不会释放锁</td>
+</tr>
+<tr>
+<td><strong>使用范围</strong></td>
+<td>必须在同步代码块中使用</td>
+<td>可以在任何地方进入sleep</td>
+</tr>
+<tr>
+<td><strong>是否捕获异常</strong></td>
+<td>不需要捕获</td>
+<td>必须捕获异常</td>
+</tr>
+</tbody></table>
+<p><strong>5. 什么是锁，锁的是谁：</strong></p>
+<p><strong>8锁问题</strong>：</p>
+<ul>
+<li><p><strong>场景1：两个 synchronized 实例方法：按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 标准情况下 是先sendEmail()还是先callPhone()?</span></span><br><span class="line"><span class="comment"> * 答案：sendEmail</span></span><br><span class="line"><span class="comment"> * 解释：被 synchronized 修饰的方式，锁的对象是方法的调用者（phone1）</span></span><br><span class="line"><span class="comment"> * 所以说这里两个方法想要获取的是同一个锁，谁先拿到锁谁先执行！这里是顺序拿锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo1</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone1 phone1 = <span class="keyword">new</span> Phone1();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone1.sendEmail();</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone1.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone1</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"senEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span>  <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景2：两个 synchronized 实例方法，并在其中一种方法中添加sleep休眠：依然按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * sendEmail()方法执行时会休眠三秒。  是先执行sendEmail() 还是 callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案： sendEmail</span></span><br><span class="line"><span class="comment"> * 解释：被 synchronized 修饰的方式，锁的对象是方法的调用者（phone2）</span></span><br><span class="line"><span class="comment"> * 所以说这里两个方法想要获取的是同一个锁，谁先拿到锁谁先执行！（也就是说，和方法本身执行的耗时无关）顺序拿锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo2</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone2 phone2 = <span class="keyword">new</span> Phone2();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone2.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">2</span>); </span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone2.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone2</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//该方法会睡3秒</span></span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景3：一个synchronized实例方法，一个普通实例方法：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 被synchronized 修饰的方法和普通方法 先执行加锁方法sendEmail() 还是 普通方法callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案： callPhone</span></span><br><span class="line"><span class="comment"> * 解释：新增加的这个方法没有 synchronized 修饰，不是同步方法，不受锁的影响，所以按时间顺序执行；</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo3</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone3 phone3 = <span class="keyword">new</span> Phone3();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone3.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone3.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone3</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">4</span>);</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 没有synchronized修饰的普通方法：先于加锁方法执行</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景4：两个 synchronized 实例方法对应两个调用者实例：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 被synchronized 修饰的不同方法 先执行sendEmail() 还是callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案：callPhone</span></span><br><span class="line"><span class="comment"> * 解释：被synchronized 修饰的不同方法 锁的对象是调用者</span></span><br><span class="line"><span class="comment"> * 这里锁的是两个不同的调用者，所有互不影响，按时间顺序执行；</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo4</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone4 phoneA = <span class="keyword">new</span> Phone4();</span><br><span class="line">        Phone4 phoneB = <span class="keyword">new</span> Phone4();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phoneA.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phoneB.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone4</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//睡3秒</span></span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景5：两个 static synchronized 静态方法：按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 两个静态同步方法 都被synchronized 修饰 是先sendEmail() 还是callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案：sendEmial</span></span><br><span class="line"><span class="comment"> * 解释：只要方法被 static 修饰，锁的对象就是 Class模板对象,这个则全局唯一！</span></span><br><span class="line"><span class="comment"> *      这里是同一个锁，先获取到锁的先执行；</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo5</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone5 phone5 = <span class="keyword">new</span> Phone5();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone5.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone5.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone5</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景6：两个 static synchronized 静态方法，使用两个实例调用：按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 同被static+synchronized 修饰的两个方法，是先sendEmail()还是callPhone()?</span></span><br><span class="line"><span class="comment"> *  答案：sendEmail</span></span><br><span class="line"><span class="comment"> *  解释：虽然有两个对象，但锁的对象是 Class模板,这个全局唯一,所以按方法获取到Class模板锁的顺序执行</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test3</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone5 phone5 = <span class="keyword">new</span> Phone5();</span><br><span class="line">        Phone5 phone5s = <span class="keyword">new</span> Phone5();</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            phone5.sendEmail();</span><br><span class="line">        &#125;, <span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            phone5s.callPhone();</span><br><span class="line">        &#125;, <span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone5</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//sleep三秒</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景7：一个 synchronized 实例方法和一个 static synchronized 静态方法：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 被synchronized 修饰的普通方法和静态方法  是先sendEmail() 还是 callPhone()?</span></span><br><span class="line"><span class="comment"> * 答案：callPhone</span></span><br><span class="line"><span class="comment"> * 解释：只要被static synchronized 修饰锁的是class模板, 而 synchronized 锁的是调用的对象</span></span><br><span class="line"><span class="comment"> * 这里是两个锁互不影响，按时间先后执行</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo6</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone6 phone6 = <span class="keyword">new</span> Phone6();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone6.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone6.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone6</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//睡了3秒</span></span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景8：一个 synchronized 实例方法和一个 static synchronized 静态方法，使用两个实例调用：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 一个被static+synchronized 修饰的方法和普通的synchronized方法，先执行sendEmail()还是callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案：callPhone()</span></span><br><span class="line"><span class="comment"> * 解释： 只要被 static+synchronized 修饰的锁的就是整个class模板</span></span><br><span class="line"><span class="comment"> * 这里一个锁的是class模板 一个锁的是调用者(对象) ,所以互不影响，按时间顺序执行</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo8</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone8 phoneA = <span class="keyword">new</span> Phone8();</span><br><span class="line">        Phone8 phoneB = <span class="keyword">new</span> Phone8();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phoneA.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phoneB.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone8</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>总结：</strong></p>
+<p>1、对<strong>普通方法(实例方法)</strong>加 synchronized 锁时，锁的是调用该方法的<strong>实例</strong><br>2、对 <strong>static 修饰的方法(静态方法)</strong>加 synchronized 锁时，锁的是唯一的一个<strong>Class模板</strong>！<br>在我们编写多线程程序的时候，只需要搞明白这个到底锁的是什么就不会出错了！</p>
+<p><strong>6. Lock接口：</strong>方法有lock(),unlock(); lock.trylock(); 实现类有：</p>
+<ul>
+<li><p><strong>RenntrantLock(常用)</strong>：可重入锁；</p>
+</li>
+<li><p>ReentrantReadWriteLock . ReadLock 读锁；</p>
+</li>
+<li><p>ReentrantReadWriteLock . WriteLock 写锁；</p>
+</li>
+</ul>
+<p>6.1 RenntrantLock可实现<strong>公平锁与非公平锁</strong>：默认非公平；</p>
+<p><img src="https://i.loli.net/2020/08/17/oFZIur7dcCTK2eE.png" alt="image-20200817220020796"></p>
+<p>​    使用方法：（手动加锁解锁）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. Lock mylock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line"><span class="number">2</span>. mylock.lock();</span><br><span class="line"><span class="number">1</span>. <span class="keyword">try</span>..<span class="keyword">catch</span>..<span class="keyword">finally</span>;<span class="comment">//业务内容</span></span><br><span class="line"><span class="number">2</span>. mylock.unlock();</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>7. Synchronized 和 RenntrantLock锁的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Synchronized</strong></th>
+<th><strong>RenntrantLock等</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>类型</strong></td>
+<td>内置java<strong>关键字</strong></td>
+<td><strong>类</strong></td>
+</tr>
+<tr>
+<td>是否<strong>手动</strong></td>
+<td><strong>自动</strong>释放</td>
+<td><strong>手动</strong>释放,否则死锁</td>
+</tr>
+<tr>
+<td>锁的<strong>状态</strong></td>
+<td>无法判断获取锁的状态</td>
+<td>可<strong>判断是否获取</strong>到锁</td>
+</tr>
+<tr>
+<td><strong>等待</strong>状态</td>
+<td>被动等待</td>
+<td>可尝试获取锁：<strong>trylock()</strong></td>
+</tr>
+<tr>
+<td><strong>功能特征</strong></td>
+<td>可重入锁,不可中断,非公平</td>
+<td>可重入锁,可中断锁,可公平</td>
+</tr>
+<tr>
+<td>适用范围</td>
+<td>锁<strong>少量</strong>同步代码</td>
+<td>锁<strong>大量</strong>同步代码</td>
+</tr>
+</tbody></table>
+<p><strong>8.  生产者和消费者问题：</strong></p>
+<p>线程间的<strong>通信过程</strong>：判断是否等待 -&gt; 执行业务 -&gt; 通知唤醒其他线程</p>
+<p><strong>使用传统的synchronized锁实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data</span></span>&#123;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">0</span>; <span class="comment">//+1 </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span>&#123; </span><br><span class="line"><span class="keyword">while</span> (number!=<span class="number">0</span>)&#123;</span><br><span class="line">	<span class="keyword">this</span>.wait();<span class="comment">//等待 </span></span><br><span class="line">&#125; </span><br><span class="line">	number++; <span class="comment">//执行业务</span></span><br><span class="line">  <span class="keyword">this</span> .notifyA1l(); <span class="comment">//通知其他线程，我+1完毕了 </span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：<strong>wait()</strong> 应该总是出现在<strong>while循环</strong>中，若使用if判断,则可能导致<strong>虚假唤醒</strong>！Example：比如说买货，如果商品本来没有货物，突然进了一件商品，这是所有的线程都被唤醒了 ，但是只能一个人买，所以<strong>其他人都是假唤醒，因为获取不到对象的锁</strong>。</p>
+<p><strong>注:notify() 和 notifyAll()的区别</strong>:</p>
+<p>​        notify()方法只唤醒一个等待（对象的）线程并使该线程开始执行。所以如果有多个线程等待一个对象，这个方法只会唤醒其中一个线程，<strong>选择哪个线程取决于操作系统对多线程管理的实现。</strong>notifyAll() 会唤醒所有等待(对象的)线程，尽管哪一个线程将会第一个处理取决于操作系统的实现。</p>
+<p><strong>使用JUC实现生产者消费者问题：</strong></p>
+<ol>
+<li>lock.newCondition();</li>
+<li>lock.lock();</li>
+<li>使用 condition 的await() ,signal()/signalAll()方法；//根据业务唤醒</li>
+<li>lock.unlock();</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data2</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">0</span>;</span><br><span class="line">    Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">	Condition condition = lock.newCondition();</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        lock.lock(); </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">       		<span class="keyword">while</span> (number!=<span class="number">0</span>)&#123;</span><br><span class="line">            	condition.await(); <span class="comment">// 根据条件进入等待</span></span><br><span class="line">            	&#125;</span><br><span class="line">            number++; <span class="comment">// 业务代码</span></span><br><span class="line">            condition.signalAll();<span class="comment">// 通知其他线程，我+1完毕了</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123; lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与传统锁方法的对比：</p>
+<p><img src="https://i.loli.net/2020/08/17/b9KtrUAzHfPjRm5.png" alt="image-20200817231339363"></p>
+<p>使用condition监视器的<strong>优势</strong>：<strong>精准地通知和唤醒线程</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data3</span> </span>&#123; <span class="comment">// 资源类 Lock</span></span><br><span class="line">        <span class="keyword">private</span> Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">        <span class="keyword">private</span> Condition conditionA = lock.newCondition();</span><br><span class="line">        <span class="keyword">private</span> Condition conditionB = lock.newCondition();</span><br><span class="line">        <span class="keyword">private</span> Condition conditionC = lock.newCondition();</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">1</span>; <span class="comment">// 1A 2B 3C</span></span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printA</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (number != <span class="number">1</span>) &#123;</span><br><span class="line">                    conditionA.await();<span class="comment">// 等待</span></span><br><span class="line">                &#125;</span><br><span class="line">                number = <span class="number">2</span>;</span><br><span class="line">                conditionB.signal();<span class="comment">//指定唤醒conditonB监听的线程：B</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">    	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printB</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (number != <span class="number">2</span>) &#123;</span><br><span class="line">                    conditionB.await();</span><br><span class="line">                &#125;</span><br><span class="line">                number = <span class="number">3</span>;</span><br><span class="line">                conditionC.signal();<span class="comment">//指定唤醒conditonC监听的线程：C</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printC</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (number != <span class="number">3</span>) &#123;</span><br><span class="line">                    conditionC.await();</span><br><span class="line">                &#125;</span><br><span class="line">                number = <span class="number">1</span>;</span><br><span class="line">                conditionA.signal();<span class="comment">//指定唤醒conditonA监听的线程：A</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-ReadWriteLock接口-读写锁-："><a href="#9-ReadWriteLock接口-读写锁-：" class="headerlink" title="9. ReadWriteLock接口 (读写锁)："></a>9. ReadWriteLock接口 (读写锁)：</h3><p>​    方法：readLock(); writeLock(); //可以实现：可单个线程同时写；多个线程同时读(没有线程在写的时候)，</p>
+<p>​    实现类：<strong>ReentrantReadWriteLock</strong> ：读写锁。</p>
+<p>用这种锁可以实现<strong>更加细粒度的控制，可选择加读锁还是加写锁</strong>：</p>
+<p>readLock()可防止在读的时候被写入；【共享锁】：多个读线程可同时持有；</p>
+<p>writeLock()可防止在写的时候被读取；【排他锁】：每次只能一个线程持有；</p>
+<h3 id="10-集合的线程安全问题："><a href="#10-集合的线程安全问题：" class="headerlink" title="10. 集合的线程安全问题："></a><strong>10. 集合的线程安全问题：</strong></h3><ol>
+<li><strong>ArrayList：</strong>多线程下，对ArrayList做出修改，会出现java. util. ConcurrentModificationException  <strong>并发修改异常</strong>！</li>
+</ol>
+<p>解决方案: </p>
+<ul>
+<li>使用Collection.SynchronizedArrayList&lt;&gt;(); 直接加同步锁，效率低</li>
+<li><strong>使用CopyOnWriteArrayList【写入时复制】</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> List&lt;String&gt; list = <span class="keyword">new</span> CopyOnWriteArrayList&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<p><strong>COW技术：</strong>开始时内核并不会复制整个地址空间，而是让父子进程共享地址空间，只有在写时才复制地址空间，使得父子进程都拥有独立的地址空间，即资源的复制是在只有需要写入时才会发生。</p>
+<p>​    <strong>只有在写入/删除的时候，才会从原来的数据复制一个副本出来，然后修改这个副本，最后把原数据替换成当前的副本。</strong>CopyOnWriteArrayList 比 Vector牛逼在哪？ <strong>只在add/delete方法里用了lock锁；(只有在修改时才加锁)</strong>；</p>
+<ol start="2">
+<li><strong>HashSet</strong>：多线程下，对HashSet做出修改，会出现java. util. ConcurrentModificationException  <strong>并发修改异常</strong>！</li>
+</ol>
+<p>解决方案：</p>
+<ul>
+<li>使用Collection.SynchronizedSet&lt;&gt;(); 直接加同步锁，效率低</li>
+<li><strong>使用CopyOnWriteArraySet【写入时复制】</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;String&gt; set = <span class="keyword">new</span> CopyOnWriteArraySet&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<p><strong>注：HashSet底层</strong>：是HashMap实现的：set内的元素就是map中的“key”；value是一个PRESENT常量</p>
+<ol start="3">
+<li><strong>HashMap：</strong></li>
+</ol>
+<p>回顾：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;(capacity ,factor);</span><br><span class="line"><span class="comment">//构造函数：初始容量，加载因子：默认：16，0.75；</span></span><br></pre></td></tr></table></figure>
+
+<p>多线程下，对HashSet做出修改，会出现java. util. ConcurrentModificationException  <strong>并发修改异常</strong>！</p>
+<p>解决方案：</p>
+<ul>
+<li>使用Collection.SynchronizedMap&lt;&gt;(); 直接加同步锁，效率低</li>
+<li><strong>使用ConcurrentHashMap:细化加锁粒度，非整个Map加锁，JDK1.8也摒弃了Segment加锁，直接对Node加锁</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; map = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="11-Callable接口："><a href="#11-Callable接口：" class="headerlink" title="11. Callable接口："></a>11. Callable接口：</h3><p><strong>与runnable接口的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Runnable</th>
+<th>Callable</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>返回值</td>
+<td>无</td>
+<td>返回泛型类型的<strong>返回值</strong></td>
+</tr>
+<tr>
+<td>异常</td>
+<td>不能抛出</td>
+<td>可抛出已检查<strong>异常</strong></td>
+</tr>
+<tr>
+<td>方法</td>
+<td>run()</td>
+<td><strong>call()</strong></td>
+</tr>
+</tbody></table>
+<p>使用方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallableTest</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> , main(String[] args) &#123;</span><br><span class="line">        MyThread thread = <span class="keyword">new</span> MyThread(); </span><br><span class="line">        FutureTask futureTask = <span class="keyword">new</span> FutureTask(thread); <span class="comment">// 把thread封装进futuretask里面；</span></span><br><span class="line">        <span class="keyword">new</span> Thread(futureTask, name: <span class="string">"A"</span>). start(); 	<span class="comment">// 调用futuretask线程</span></span><br><span class="line">        Integer o = (Integer) futureTask. get(); <span class="comment">// 获取Callable线程的返回结果</span></span><br><span class="line">        <span class="comment">//这个get方法可能产生阻塞，因为他要等待结果的产生。要么通过异步通信来获取此结果。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Integer <span class="title">call</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System. out . println(<span class="string">"call()"</span>); </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1024</span>; <span class="comment">//返回值的类型为 Integer</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注：</p>
+<ol>
+<li><p>这个get方法获取结果可能产生阻塞，因为他要等待结果的产生；要么通过异步通信来获取此结果。</p>
+</li>
+<li><p>这个结果会缓存下来</p>
+</li>
+</ol>
+<h3 id="12-三大常用辅助工具类"><a href="#12-三大常用辅助工具类" class="headerlink" title="12. 三大常用辅助工具类"></a>12. 三大常用辅助工具类</h3><ol>
+<li><p><strong>CountDownLatch</strong>：倒数计数器:</p>
+<p>每次有线程调用countDownLatch(), 数量-1 , 当计数器变为0 , countDownLatch.await()就会被唤醒,继续执行!</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">核心方法：</span><br><span class="line">CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">6</span>);<span class="comment">//new一个计数器，初始值为6</span></span><br><span class="line">countDownLatch. countDown(); <span class="comment">//计数-1；</span></span><br><span class="line">countDownLatch.await(); <span class="comment">//等待计数器归零，然后再向下执行</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Demo:   </span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountDownLatchDemo</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">            <span class="comment">//总数是6，必须要执行任务的时候，再使用!</span></span><br><span class="line">            CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">6</span>);</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=<span class="number">6</span>;i++)&#123;</span><br><span class="line">                <span class="keyword">new</span> Thread(()-&gt;&#123;System.out.println(Thread.currentThread().getName()+<span class="string">" Go out"</span>);</span><br><span class="line">                    countDownLatch. countDown(); <span class="comment">//数量-1</span></span><br><span class="line">                &#125;,String.valueOf(i)).start();</span><br><span class="line">            &#125;</span><br><span class="line">            countDownLatch. await(); <span class="comment">//等待计数器归零，然后再向下执行!</span></span><br><span class="line">            System.out.println(<span class="string">"Close Door"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>CyclicBarrier:</strong> 循环栅栏</p>
+<p>从字面上的意思可以知道，这个类的中文意思是“循环栅栏”。大概的意思就是一个可循环利用的屏障。</p>
+<p><strong>它的作用就是会让所有线程都等待完成后才会继续下一步行动</strong>。</p>
+<ul>
+<li>线程调用 await() 表示自己已经到达栅栏；</li>
+<li>当所有线程到达栅栏的数量等于设置的数量（这里是7）时，程序继续往下执行</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        CyclicBarrier cyclicBarrier = <span class="keyword">new</span> CyclicBarrier(<span class="number">7</span>,()-&gt;&#123;</span><br><span class="line">            System.out.println(<span class="string">"召唤神龙成功"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">7</span>; i++) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">int</span> finalI = i;</span><br><span class="line">            <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+finalI);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    cyclicBarrier.await();<span class="comment">//等待7次</span></span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException | BrokenBarrierException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Semaphore：信号量</strong></p>
+<p>用于<strong>限制可以访问某些资源（物理或逻辑的）的线程数目</strong>：</p>
+<p>比如：假如有3个窗口可以打饭，同一时刻也只能有3名同学打饭。第四个人来了之后就必须在外面等着，只要有打饭的同学好了，就可以去相应的窗口了。</p>
+<p>用法：acquire()方法、release()方法</p>
+<p><img src="https://i.loli.net/2020/08/18/rzWDk2oy86m5bZA.png" alt="image-20200818205829517"></p>
+<p><code>acquire()</code>:获取信号量，若获得不到则一直等待直到获得；</p>
+<p><code>release（）</code>：释放信号量, 会将当前的可用信号量+ 1 ,然后噪醒等待的线程；</p>
+<p>应用场景：多个共享资源互斥的使用!<strong>并发限流,控制最大的线程数</strong></p>
+</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/15/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -637,7 +1015,47 @@
       
         
           
-            <h2 id="秒杀开发笔记"><a href="#秒杀开发笔记" class="headerlink" title="秒杀开发笔记"></a>秒杀开发笔记</h2><h4 id="1-mapper-xml声明："><a href="#1-mapper-xml声明：" class="headerlink" title="1. mapper.xml声明："></a>1. mapper.xml声明：</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">  <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span></span><br><span class="line"><span class="meta">  <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+            <h2 id="秒杀开发笔记"><a href="#秒杀开发笔记" class="headerlink" title="秒杀开发笔记"></a>秒杀开发笔记</h2><h4 id="SecKill-基于-SpringBoot-Mybatis-Redis的高并发秒杀API"><a href="#SecKill-基于-SpringBoot-Mybatis-Redis的高并发秒杀API" class="headerlink" title="SecKill:基于 SpringBoot+Mybatis+Redis的高并发秒杀API"></a>SecKill:基于 SpringBoot+Mybatis+Redis的高并发秒杀API</h4><ul>
+<li><p><strong>业务需求</strong>：</p>
+<p>​    此项目模拟的是电商活动中一个商品的高并发秒杀场景。商品列表中有N种商品，每个商品都有自己的库存数目，每个商品的秒杀开始时间也不相同。每个用户只可以秒杀成功一次某种商品，不同的商品可以分别秒杀。</p>
+</li>
+<li><p><strong>业务逻辑</strong>：</p>
+<p><strong>数据优化</strong>：</p>
+<ul>
+<li><strong>热点数据缓存</strong>：启用SpringBoot的声明式缓存支持，将热门商品信息等热点数据放入Redis缓存，降低服务器压力；</li>
+<li><strong>内容分发网络</strong>：使用CDN存储静态资源，解决Tomcat服务器带宽瓶颈；</li>
+<li><strong>动静数据分离</strong>：前端采用Freemarker模板引擎将页面静态化，并使用ajax动态加载后端产生的数据。</li>
+</ul>
+<p><strong>并发优化</strong>：</p>
+<ul>
+<li><strong>避免超卖</strong>：商品库存信息放入Redis，在Redis缓存中预减库存，完成秒杀用户确权与避免商品超卖问题；</li>
+<li><strong>削峰限流</strong>：使用RabbitMQ消息队列，用户秒杀成功确权与订单信息生成这两个过程异步执行，实现削峰限流和业务逻辑解耦。</li>
+<li><strong>负载均衡</strong>：使用Nginx反向代理服务器，将用户请求转发到多台服务器，实现负载均衡及更高的并发量；同时使用分布式Session，将 Session转存到Redis中实现 Session 共享访问。</li>
+</ul>
+<p><strong>安全优化</strong>：</p>
+<ul>
+<li><p><strong>URL加盐</strong>：后端动态生成商品秒杀的路径，等到商品秒杀的时间获取秒杀路径的接口才会返回秒杀路径；</p>
+</li>
+<li><p><strong>防刷与反爬</strong>：在Redis中保存当前客户端的访问次数，对于在设定时间内超过访问次数限制的IP，使用AOP拦截器对其拒绝服务。</p>
+</li>
+<li><p><strong>服务降级和服务熔断</strong>：当某个服务单元发生故障监控，向调用方法返回一个符合预期的、可处理的备选响应。<strong>（未实现）</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="技术栈："><a href="#技术栈：" class="headerlink" title="技术栈："></a>技术栈：</h4><ul>
+<li>SpringBoot 2.x</li>
+<li>Mybatis</li>
+<li>Redis</li>
+<li>RabbitMQ</li>
+<li>Nginx</li>
+<li>MySQL</li>
+</ul>
+<h4 id="1-配置依赖"><a href="#1-配置依赖" class="headerlink" title="1. 配置依赖"></a>1. 配置依赖</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.geekouc<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>babytun-seckill<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>babytun-seckill<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>Demo project for Spring Boot<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-cache<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-freemarker<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mapper头模板：</span><br><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">  <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span></span><br><span class="line"><span class="meta">  <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
 
 <h4 id="2-分层编写后端和前端页面：-view-gt-controller-gt-service-gt-dao"><a href="#2-分层编写后端和前端页面：-view-gt-controller-gt-service-gt-dao" class="headerlink" title="2. 分层编写后端和前端页面： view -&gt; controller -&gt; service -&gt; dao"></a>2. 分层编写后端和前端页面： view -&gt; controller -&gt; service -&gt; dao</h4><h4 id="3-压力测试：Jmeter"><a href="#3-压力测试：Jmeter" class="headerlink" title="3. 压力测试：Jmeter"></a>3. 压力测试：Jmeter</h4><p>启动命令：sh jmeter</p>
 <p><img src="https://i.loli.net/2020/08/11/vBLh8yTw6gGJzqH.png" alt="image-20200811231556871"></p>
@@ -670,7 +1088,7 @@
 <p>动态生成模板对象：</p>
 <p><img src="https://i.loli.net/2020/08/12/V4z5U6iB72oQCAJ.png" alt="image-20200812112335667"></p>
 <p>注：可以使用大循环直接对所有商品页面进行静态化即可；</p>
-<h4 id="Nginx-反向代理服务器"><a href="#Nginx-反向代理服务器" class="headerlink" title="Nginx(反向代理服务器)"></a>Nginx(反向代理服务器)</h4><p>​        Nginx是一款轻量级的<strong>Web服务器/反向代理服务器</strong>, 其特点是<strong>占有内存少,并发能力强</strong>,事实上 nginx的并发能力确实在同类型的网页服务器中表现较好。</p>
+<h4 id="Nginx-反向代理服务器"><a href="#Nginx-反向代理服务器" class="headerlink" title="Nginx(反向代理服务器)"></a>Nginx(反向代理服务器)</h4><p>​        Nginx是一款轻量级的<strong>Web服务器/反向代理服务器</strong>, 其特点是<strong>占内存少,并发能力强</strong>,事实上 nginx的并发能力确实在同类型的网页服务器中表现较好。</p>
 <p>安装：brew install nginx</p>
 <p>启动：brew services start nginx</p>
 <p>路径：/usr/local/etc/nginx/nginx.conf</p>
@@ -1878,216 +2296,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/09/%E5%9F%BA%E4%BA%8E%E6%B5%8B%E9%87%8F%E6%9D%A1%E4%BB%B6%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="田济荣">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="GeekOUC">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/07/09/%E5%9F%BA%E4%BA%8E%E6%B5%8B%E9%87%8F%E6%9D%A1%E4%BB%B6%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5/" itemprop="url">基于测量条件生成模型的压缩感知</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-09T19:47:01+08:00">
-                2020-07-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index">
-                    <span itemprop="name">论文</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="基于测量条件生成模型的压缩感知"><a href="#基于测量条件生成模型的压缩感知" class="headerlink" title="基于测量条件生成模型的压缩感知"></a>基于测量条件生成模型的压缩感知</h1><h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>​    压缩感知(CS)中经常采用预训练生成器，因为它能够在NNS先验的情况下有效地估计信号。<strong>为了进一步提炼基于神经网络的先验，我们提出了一个框架，允许生成器学习特定于测量的先验分布，从而对测量产生更准确的预测。</strong><br>我们的框架有一个简单的形式，<strong>它只利用来自给定测量的额外信息进行先前学习</strong>，所以它可以很容易地应用于现有的方法。尽管该框架结构简单，但我们通过大量的实验证明，我们的框架表现出了一致的优越性能，并且在某些应用中可以将重建误差降低到一个数量级。我们还从理论上解释了实验的成功，表明我们的框架可以略微放宽严格的信号存在条件，这是保证信号恢复成功所必需的。</p>
-<h2 id="1-引言："><a href="#1-引言：" class="headerlink" title="1.引言："></a>1.引言：</h2><p>​    几十年来，压缩传感(CS)一直是一种流行的方法，用于在设备数量大于测量大小时恢复信号，例如在通信中[1，2，3]，或者在医学成像[4，5，6]和光学成像[7]中测量非常昂贵。CS的目标是在给定欠采样测量向量y∈Rm的情况下，在以下线性关系下估计信号x∈Rd：</p>
-<p><img src="https://i.loli.net/2020/07/09/2KyOmNbBEtaToYn.png" alt="image-20200709195307574"></p>
-<p>​    其中A∈Rm×d是给定的感测矩阵，使得m&lt;d，并且ω是未知噪声。由于(1)是欠定线性系统，它需要对信号做一些基本假设以保证解的唯一性。关于CS的经典文献假设x在某些已知基上是稀疏的，并通过L1-最小化来求解(1)。</p>
-<p>​    由于神经网络在有监督学习(包括回归和分类任务)和无监督学习(如聚类和密度估计任务)方面都取得了巨大的成功，因此近年来许多研究者致力于利用神经网络作为CS的结构假设[8，9，10，11，12，13，14，15，16，17，18，19，20，21，22，23，24，6]。特别地，在[22]中证明了使用预训练生成器(CSPG)的CS能够通过利用特定于领域的先验而不是通用稀疏先验来重构信号。尽管使用LASSO[25]的方法仅从由某一算子(例如，小波变换)变换的数据中捕获信号稀疏性，但现实世界的数据具有除稀疏性之外的多种特征。结果，训练生成模型使其生成器能够学习特定于领域的分布，这允许信号恢复，即使在稀疏先验的情况下，与理论下界相比，测量次数更少。</p>
-<p>​    遗憾的是，CSPG的前人工作[22，18，26，27，10，8，14]只涉及训练生成器来推断信号本身的先验概率分布。由于每个训练信号的测量向量在训练生成器时都是可用的，<strong>因此我们可以通过使生成器依赖于测量并学习在测量条件下的信号分布来进一步优化生成器</strong>。在本文中，我们集中讨论如何帮助生成器学习这种测量条件分布。</p>
-<p>我们的贡献有三个方面：</p>
-<ul>
-<li>我们提出了一个框架，使生成器能够学习特定于测量的先验分布p(x|y)。据我们所知，<strong>我们的框架是首次尝试将y插入到CS的生成模型中。</strong></li>
-<li>我们为学习测量条件先验提供了理论支持，我们的框架减轻了严格的信号存在假设，从而使信号重构更加成功</li>
-<li>我们的经验表明，在各种各样的先前工作的基础上，我们取得了持续的、相当大的改进。在以往生成性模型难以重建(即MRI图像重建)的真实数据上，我们进一步证明了该方法的实用性。</li>
-</ul>
-<h2 id="2-相关工作："><a href="#2-相关工作：" class="headerlink" title="2 相关工作："></a>2 相关工作：</h2><p>​    我们介绍了深度神经网络在CS中的几个研究方向，根据是否使用生成器，这些研究可以很大程度上分为两类：</p>
-<p><strong>CS通过NNS，无需生成器：</strong></p>
-<p>​    这组研究主要涉及为某些特殊目的设计神经网络体系结构。首先，文献[28]提出迭代收缩阈值算法(ISTA)的更新步骤可以表示为神经网络的每一层，并提出了一种深层结构作为ISTA的学习变体(LISTA)。由于LISTA优化了最初设置为ISTA的网络，LISTA利用其体系结构直接提高了ISTA的性能。在这种展开过程的激励下，通过展开最先进的CS算法(例如，近似消息传递、稀疏贝叶斯学习和乘子交替方向方法等)并将它们映射到特定的网络结构，已经进行了广泛的研究[29、30、31、32、33、24、23、6、19]。除了基于展开的研究之外，[11]还提出了一种卷积自动编码器的变体，以加速信号恢复并诱导数据驱动的降维。[9]提出了如何通过设计一种受投影次梯度法启发的自动编码器来学习传感矩阵。[20]研究了正则化泛函被构造为神经网络的情况。</p>
-<p><strong>CS通过带生成器的NNS：</strong><br>    根据是否训练生成器，第二组进一步分为使用预训练生成器的CS(CSPG)和使用未训练的生成器的CS(CSUG)。CSPG指示通过对数据进行训练的生成器来恢复信号的算法。[22]首先利用预先训练的生成器来重构信号，提供恢复保证。此后已经进行了许多研究[18、26、14、27、8、10]以提高CSPG的绩效。与CSPG相比，诸如[17，34]之类的CSUG表示基于深度图像先验[35]的方法，从而可以仅使用一个测量向量yte来训练未训练生成器的权重。虽然CSUG即使在没有训练数据的情况下也能够恢复信号，但是CSPG的使用比CSUG更广泛，因为训练数据通常可以在实践中获得，并且CSPG通常在各个方面优于CSUG(例如，CSUG[36，34]的性能类似于基于小波的套索方法，而CSPG[22，18]的性能优于它)。</p>
-<p>​    在这项工作中，我们提出了一个新的框架，该框架易于应用于CSPG，同时通过对条件生成模型的建模，显著而统一地改进了现有的CSPG方法。虽然在构建条件生成模型方面有几种选择，但我们的框架特别基于生成对抗网络(GAN)[37]，因为它在CSPG中很受欢迎。因此，我们的框架也可以理解为条件GaN(CGAN)的特例[38]，以及最近将cGAN应用于各个领域的研究[39，40，40，40，41，41，42，43，44，45，46，42，42，47，48]。然而，所有这些工作都只是针对生成任务，而不是针对恢复，特别是针对CS。</p>
-<h2 id="3-CS的度量条件生成模型框架："><a href="#3-CS的度量条件生成模型框架：" class="headerlink" title="3 CS的度量条件生成模型框架："></a>3 CS的度量条件生成模型框架：</h2><p>​    在这一部分中，我们概述了CSPG的基本背景，并提出了一个简单而有效的方案来应对这一限制。</p>
-<p><strong>记法:</strong>我们使用Gθ(Z)来表示具有参数θ和潜在变量z的生成器。类似地，我们使用Dφ(X)来表示具有参数φ和输入x的鉴别    器。(xtr，ytr)(或者(xte，yte))表示由(1)给出的一对训练(或测试)信号xtr(或xte，yte)和相应的测量向量ytr(或yte)。我们用p(x，y)、p(X)和p(x|y)分别表示(x，y)的联合分布、x的边缘分布和x给定y的条件分布。</p>
-<p><img src="https://i.loli.net/2020/07/09/PEgQ5iIxFUvXaoJ.png" alt="image-20200709201402005"></p>
-<p><strong>3.1 初步：使用预先训练的生成器进行压缩传感:</strong></p>
-<p>​    使用预训练生成器(CSPG)的CS中的算法通常可以分为以下两个阶段，分别是训练(2)和测试(22)。训练阶段旨在找出给定一组训练信号{xtr}的发生器Gθ∗，φ∗和鉴别器Dθ的最佳参数(φ)：</p>
-<p><img src="https://i.loli.net/2020/07/09/wc6uYqZ9TojMrAW.png" alt="image-20200709195228133"></p>
-<p>​    其中，x̄表示训练信号xTR或由Gθ(Z)生成的伪信号，LTR(M)表示与模型M有关的训练的损失函数，并且FOPT[·]由操作员定义以相对于T优化其输入。通常，M={Gθ(X)，Dφ(x̄)}和T={θ，φ}，但T可以随M而变化。</p>
-<p>​    在测试阶段，通过以下两个阶段的过程将目标xte估计为xˆ：我们首先找出给定训练的∗和测量yte的最优潜在变量zθ∗：</p>
-<p><img src="https://i.loli.net/2020/07/09/AthMPCq1rvpK6TH.png" alt="image-20200709195401397"></p>
-<p>​    其中，lte􏰁Gθ∗(Z)，yte􏰂表示用于推断的目标函数。然后，给定估计的z∗和训练的θ∗，我们将目标xte恢复为xˆ=Gθ∗(z∗)。</p>
-<p><strong>3.2 测量 ： 有条件的预训练发电机：</strong></p>
-<p>​    与现有的在DCGAN[50]等原始GAN框架下学习感兴趣的边际概率p(X)的CSPG方法不同，我们的框架提供了一种通过利用条件GAN[38]框架的概念来学习测量条件分布p(x|y)的方法。本质上，我们不仅通过“噪声”产生信号分布，而且利用特定的“测量信息”来产生信号分布，从而利用测量向量的附加信息来进一步提炼先验。在CS中关于满足p(x，y)&gt;0的所有(x，y)都存在从y到x的逆映射的经典假设下，如果生成器准确地推导出p(x|y)，则它可以成功地从yte恢复XTE。当然，在实践中，几乎不存在这样理想的逆映射。然而，如图1(A)中经验所示，条件生成器仍然可以为目标信号提供更精细的先验，从而增加了在后续信号重构阶段(如(22))中的成功机会。</p>
-<p>​    <strong>这种称为“插入测量”(IM)的方法可以很容易地应用于任何使用预训练生成器(CSPG)的CS方法，如图2所示</strong>。与判别性模型(即，用于CS的学习NNS，其在没有任何生成器的情况下将测量直接映射到目标信号)不同，CS的生成模型具有潜在变量矢量z，该潜在变量矢量z可以在测试阶段VIA(22)中进行优化，以找到更接近真实信号的估计。在这个过程中，可以同时使用生成模型中的各种样本来帮助有效地实现这一目标。如图1(B)所示，我们的方法继承了生成模型的优点，同时采取了类似的区分方法的精神，从而改进了CS的生成模型。</p>
-<p><img src="https://i.loli.net/2020/07/09/xLzb38YQuywq9Hn.png" alt="image-20200709195608370"></p>
-<p><img src="https://i.loli.net/2020/07/09/t5IJvcXCbrwgHOA.png" alt="image-20200709195642744"></p>
-<h2 id="4-在我们的框架下看现有的CSPG模型："><a href="#4-在我们的框架下看现有的CSPG模型：" class="headerlink" title="4 在我们的框架下看现有的CSPG模型："></a>4 在我们的框架下看现有的CSPG模型：</h2><p>​    我们现在提供的例子展示了我们的框架，将IM用于各种CSPG模型，例如使用生成模型的压缩传感(CSGM)[22]和投影梯度下降GaN(PGDGAN)[26]。IM在深度压缩传感(DCS)[10]和SparseGen[18]中的应用推迟到附录。</p>
-<p><strong>使用生成模型的压缩传感(CSGM)：</strong></p>
-<p>​    基于生成模型的压缩传感(CSGM)[22]是第一个在(2)和(22)中提出基于GaN的CSPG框架的工作。虽然它允许任何GaN模型，但是如果如[22]所示使用包括DCGAN[50]的标准GaN训练目标，则通过解决以下最小-最大问题来训练生成器Gθ和鉴别器Dφ：</p>
-<p><img src="https://i.loli.net/2020/07/09/RernQUZsuKI3NcA.png" alt="image-20200709200120454"></p>
-<p>​    在其框架下开始了另一个合理的GAN实例。在这种情况下，CSGM的培训阶段可以给出如下形式：</p>
-<p><img src="https://i.loli.net/2020/07/09/1yqVJCBitD5RlE4.png" alt="image-20200709200152340"></p>
-<p>​    其中，R_φ(x_̄)=∥<em>x</em>̄−<em>D</em>φ(x_̄)∥_p)表示由D_φ根据p=1或2范数确定的重建损失，并且参数ζ控制自动编码真实图像和区分真实图像与虚假图像之间的平衡。当(6)中的Dφ输出指示其输入是否是真实图像的标量值(概率)时，(7)中的Dφ基于其输入重建图像。</p>
-<p>​    测试阶段中的CSGM通过最小化关于预训练生成器Gˆ的输入噪声z的以下损失来计算目标信号xte的估计xθ∗=G∗(zθ∗)：</p>
-<p><img src="https://i.loli.net/2020/07/09/Fq13v2lXWmAUgLM.png" alt="image-20200709200427206"></p>
-<p><strong>CSGM-IM：</strong></p>
-<p>​    我们现在展示在我们的框架下如何将所提出的方案应用于CSGM。我们将此应用程序命名为CSGM-IM。CSGM-IM的训练阶段根据以下优化(9)(针对DCGAN)和(10)(针对BEGIN)学习(θ，φ)，它们分别由(6)和(7)修订而来：</p>
-<p>​    ![image-20200709200537879](/Users/tianjirong/Library/Application Support/typora-user-images/image-20200709200537879.png)</p>
-<p>​    在测试阶段，CSGM-IM通过将测试测量一致地馈送到学习生成器来估计目标信号xte为xˆ=Gθ∗(z∗，yte)：</p>
-<p><img src="https://i.loli.net/2020/07/09/Gd6UnAyXLtORMDs.png" alt="image-20200709200642746"></p>
-<p>​    我们在图2中说明了CSGM-IM与CSGM的不同之处，并将他们的算法加到附录中。</p>
-<p><strong>4.2 投影梯度下降GaN(PGDGAN)：</strong></p>
-<p>​    投影梯度下降GaN(PGDGAN)[26]是将投影梯度方法应用于CSPG框架的代表性工作。与CSGM类似，PGDGAN的训练阶段可以是任何优化生成器Gθ的学习方案，如(6)或(7)。然而，在测试阶段，PGDGAN通过联合减小欧几里得测量误差[26]和使信号估计属于预训练生成器的范围来恢复信号。具体地说，测试阶段的PGDGAN通过迭代求解以下关于预训练生成器Gˆ的输入噪声z的递归公式来计算目标信号xTE的估计xθ∗=xT：</p>
-<p><img src="https://i.loli.net/2020/07/09/AsHNEzh58MUoYcm.png" alt="image-20200709200741272"></p>
-<p>​    对于t=0，···，T_−_1，其中PG_θ∗(H)=G_θ∗(argminz_∥<em>h</em>−<em>G</em>θ∗(Z)∥)表示将输入h映射到预先训练生成器G_θ∗，x0=0或A_⊤_yte的范围内最接近h的点的投影算子，通常，α是学习率，T是迭代的总次数。注意，(12)中的第二项的内部和外部计算分别将估计更新为减小欧几里得测量误差的方向，并将该更新的估计投影到Gθ∗的范围内。因此，PGDGAN可以被认为是用基于网络的正则化算法来解决最小二乘问题，而不是用CS中通常使用的稀疏提升正则化算法来解决最小二乘问题。</p>
-<p><strong>PGDGAN-IM：</strong></p>
-<p>​    我们现在描述IM如何在我们的框架下应用于PGDGAN。我们将此应用程序命名为PGDGAN-IM。由于PGDGAN具有与CSGM相同的训练阶段，PGDGAN-IM也具有与CSGM-IM相同的训练阶段((9)或(10))。在测试阶段，PGDGAN-IM通过将测试测量一致地馈送到训练的生成器来估计目标信号xte为xˆ=xt：</p>
-<p><img src="https://i.loli.net/2020/07/09/VuHw49lUTOpt6AC.png" alt="image-20200709200837186"></p>
-<p>​    我们在附录中给出了PGDGAN和PGDGAN-IM的算法。</p>
-<h2 id="5-实验："><a href="#5-实验：" class="headerlink" title="5 实验："></a>5 实验：</h2><p>​    为了评估算法的有效性，我们重点在CelebA[52]数据集上进行了实验，这是一项常见但比MNIST[53]或Omniglot[54]数据集更困难的任务。图像在中心被裁剪成大小为64×64×3(d=12288)并归一化到范围[−1，1]。为了进行推断，我们利用测试集中的64个随机图像，以5次试验的95%置信区间计算重建误差∥xTe−xˆ∥2。感测矩阵A的每个条目从正态分布N(0，1/m)采样。除非另有说明，否则我们遵循与[22]相同的实验设置。当将y添加到生成模型中时，在DCGAN和BEGIN中，y都连接到Gθ中的z。在BEGIN中，Y还连接到Dφ中的嵌入层。由于在DCGAN的Dφ中没有嵌入层，我们仿真了[55]中提出的体系结构。关于实验设置和不同m上的实验结果的进一步信息在附录中给出。</p>
-<p><strong>CSGM-IM</strong>：</p>
-<p><img src="https://i.loli.net/2020/07/09/gq9y3f21WzUSZhE.png" alt="image-20200709201502679"></p>
-<p>​    如表2所示，IM显著改善了所有m个的CSGM。平均而言，IM将重建误差降低了30%以上。虽然IM极大地提高了CSGM在小m情况下的性能，但它仍然表现出与CSGM一样的性能饱和。当攻击开始时，CSGM-IM表现出更令人信服的性能，并克服了这样的限制。与表2和表2中的最后一列相比，对于每m个m，使用BEGIN的CSGM-IM的每像素重建误差小于使用DCGAN。更引人注目的是，对于表2中的m≥，使用BEGIN的CSGM-IM的每像素重建误差几乎小于使用START的CSGM的每像素重建误差一个数量级。结果，不仅使用START的CSGM-IM在m=1000时恢复了与原始图像相似的图像(m/d≈为8.14%)，而且在m=5000(m/d≈为40.69%)时重建的图像与原始图像几乎相同，如图3所示。</p>
-<p><img src="https://i.loli.net/2020/07/09/9di4UoTPfm2M5jQ.png" alt="image-20200709201522512"></p>
-<p><strong>PGDGAN-IM：</strong></p>
-<p>​    为进行公平比较，我们遵循与[26]相同的超参数。在表2中，PGDGAN-IM比PGDGAN的重建误差平均降低30%以上。</p>
-<p><strong>DCS-IM</strong></p>
-<p>​    为了验证我们方法的有效性，在没有D-φ的情况下，我们将IM应用到DCS中。表2显示，IM将DCS的重构误差降低了70%以上。当m≤为100时，dcs-IM的性能尤其优于所有其他方法，这意味着IM使dcs在小m中的实力更加突出。此外，IM将mCSGM-IM的每个像素的重建误差降低了mCSGM 1000的一个数量级，从而实现了像使用如图3所示的BEGIN的≥-IM那样的成功信号恢复。</p>
-<p>​    SparseGen-IM我们只考虑小波基，因为[18]推荐的是小波基，而不是离散余弦变换。表2表明，SparseGen-IM优于SparseGen，重建误差平均减少38%左右。</p>
-<h2 id="6-在磁共振成像中的应用："><a href="#6-在磁共振成像中的应用：" class="headerlink" title="6 在磁共振成像中的应用："></a>6 在磁共振成像中的应用：</h2><p>​    为了验证IM在真实数据上的实用性，我们在FAST MRI[56]数据集上进行了实验。特别地，我们利用了膝部数据集。由于测试切片质量不高，我们将验证切片作为测试集。与[56]类似，图像在中心被裁剪到大小256×256，并且被下采样到大小128×128(d=16384)。任何数据扩充都不是为了表明IM可以鼓励以前的方法即使在少量数据上也能很好地执行。为了进行测试，我们在验证切片中使用了64个随机图像。更多信息见附录。与第6节相同，感测矩阵A的每个条目也从正态分布N(0，1/m)中采样，并且重建误差被用作评估度量。与(1)不同，在创建测量矢量yte时不添加噪声。在这个实验中，我们只使用BEGIN架构，因为它在我们的实验中工作得最好。</p>
-<p>​    与第6节类似，CSGM-IM的性能比CSGM好得多。如表3所示，IM将m≥2500CSGM的重建误差降低了近一个数量级。不仅如此，如图4所示，CSGM-IM可以恢复与原始图像高度相似的图像，而CSGM根本不能。</p>
-<p><img src="https://i.loli.net/2020/07/09/P7HfY4NJupqyiMb.png" alt="image-20200709201541597"></p>
-<h2 id="7-结论："><a href="#7-结论：" class="headerlink" title="7 结论："></a>7 结论：</h2><p>​    我们提出了一种简单而有效的方法，即插入测量值，使生成器能够学习p(x|y)而不是p(X)。即使在IM框架中，生成性模型的特点仍然存在，这使得我们可以通过潜在优化找到更接近真实信号的估计。通过利用判别模型和生成模型的优点，IM可以产生比现有方法小得多的重建误差，最高可达一个数量级。因此，我们期望IM能够用于各种CS应用程序以及图像恢复。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2138,7 +2346,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="tags:多线程多线程与并发编程学习笔记1. 什么是JUC：java.util.concurrent 并发工具包； 2. 线程与进程： 进程：一段代码程序执行的过程；一个进程可包含多个线程； ​        在 Java 本身启动时会创建若干个线程，除了 main 线程之外，还有Monitor Ctrl-Break，Signal Dispatcher，Finalizer，Reference H">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程与并发编程学习笔记">
+<meta property="og:url" content="http://yoursite.com/2020/08/17/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="GeekOUC">
+<meta property="og:description" content="tags:多线程多线程与并发编程学习笔记1. 什么是JUC：java.util.concurrent 并发工具包； 2. 线程与进程： 进程：一段代码程序执行的过程；一个进程可包含多个线程； ​        在 Java 本身启动时会创建若干个线程，除了 main 线程之外，还有Monitor Ctrl-Break，Signal Dispatcher，Finalizer，Reference H">
+<meta property="og:image" content="https://i.loli.net/2020/08/17/oFZIur7dcCTK2eE.png">
+<meta property="og:image" content="https://i.loli.net/2020/08/17/b9KtrUAzHfPjRm5.png">
+<meta property="og:image" content="https://i.loli.net/2020/08/18/rzWDk2oy86m5bZA.png">
+<meta property="article:published_time" content="2020-08-17T08:24:12.518Z">
+<meta property="article:modified_time" content="2020-08-18T13:29:33.782Z">
+<meta property="article:author" content="田济荣">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/08/17/oFZIur7dcCTK2eE.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/08/17/多线程与并发编程学习笔记/"/>
+
+
+
+
+
+  <title>多线程与并发编程学习笔记 | GeekOUC</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?345da8a17ad1f3825bc080f35df3590b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">GeekOUC</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Hello,world.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-简历">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            简历
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-schedule">
+          <a href="/schedule/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br />
+            
+            日程表
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">多线程与并发编程学习笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-17T16:24:12+08:00">
+                2020-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h2 id="tags-多线程"><a href="#tags-多线程" class="headerlink" title="tags:多线程"></a>tags:多线程</h2><h2 id="多线程与并发编程学习笔记"><a href="#多线程与并发编程学习笔记" class="headerlink" title="多线程与并发编程学习笔记"></a>多线程与并发编程学习笔记</h2><p><strong>1. 什么是JUC</strong>：java.util.concurrent 并发工具包；</p>
+<p><strong>2. 线程与进程</strong>：</p>
+<p><strong>进程</strong>：一段代码程序执行的过程；一个进程可包含多个线程；</p>
+<p>​        在 Java 本身启动时会创建若干个线程，除了 main 线程之外，还有Monitor Ctrl-Break，Signal Dispatcher，Finalizer，Reference Handler。</p>
+<p><strong>线程</strong>：</p>
+<p>​        Java真的能开启多个线程吗？否。是使用的<strong>native方法start0()开启的线程</strong>。因为JAVA运行在虚拟机上，无法直接操作硬件。</p>
+<p><strong>线程6大状态</strong>：（可在Thread类的源码中找到）</p>
+<p>NEW -&gt; RUNNABLE -&gt; BLOCKED -&gt;WAITING -&gt; TIME_WAITING -&gt; TERMINATED</p>
+<p><strong>3. 并发与并行</strong>：</p>
+<p><strong>并发</strong>：多线程操作同一个资源；多线程是模拟出来的，是<strong>CPU时间片轮转快速交替执行</strong>而已。并发编程是为了:充分利用CPU性能资源.</p>
+<p><strong>并行</strong>：CPU<strong>多个物理核心</strong>,多个线程可以同时执行;可<strong>使用线程池</strong>：</p>
+<p><strong>线程池的数量</strong>：</p>
+<p><strong>IO密集型</strong>=2Ncpu（可以测试后自己控制大小，2Ncpu一般没问题）（常出现于线程中：数据库数据交互、文件上传下载、网络数据传输等等）</p>
+<p><strong>计算密集型</strong>=Ncpu（常出现于线程中：复杂算法）</p>
+<p><strong>4. wait/sleep的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>wait</th>
+<th>sleep</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>所属的类</strong></td>
+<td>Object</td>
+<td>Thread</td>
+</tr>
+<tr>
+<td><strong>是否释放锁</strong></td>
+<td>释放了锁</td>
+<td>不会释放锁</td>
+</tr>
+<tr>
+<td><strong>使用范围</strong></td>
+<td>必须在同步代码块中使用</td>
+<td>可以在任何地方进入sleep</td>
+</tr>
+<tr>
+<td><strong>是否捕获异常</strong></td>
+<td>不需要捕获</td>
+<td>必须捕获异常</td>
+</tr>
+</tbody></table>
+<p><strong>5. 什么是锁，锁的是谁：</strong></p>
+<p><strong>8锁问题</strong>：</p>
+<ul>
+<li><p><strong>场景1：两个 synchronized 实例方法：按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 标准情况下 是先sendEmail()还是先callPhone()?</span></span><br><span class="line"><span class="comment"> * 答案：sendEmail</span></span><br><span class="line"><span class="comment"> * 解释：被 synchronized 修饰的方式，锁的对象是方法的调用者（phone1）</span></span><br><span class="line"><span class="comment"> * 所以说这里两个方法想要获取的是同一个锁，谁先拿到锁谁先执行！这里是顺序拿锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo1</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone1 phone1 = <span class="keyword">new</span> Phone1();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone1.sendEmail();</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone1.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone1</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"senEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span>  <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景2：两个 synchronized 实例方法，并在其中一种方法中添加sleep休眠：依然按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * sendEmail()方法执行时会休眠三秒。  是先执行sendEmail() 还是 callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案： sendEmail</span></span><br><span class="line"><span class="comment"> * 解释：被 synchronized 修饰的方式，锁的对象是方法的调用者（phone2）</span></span><br><span class="line"><span class="comment"> * 所以说这里两个方法想要获取的是同一个锁，谁先拿到锁谁先执行！（也就是说，和方法本身执行的耗时无关）顺序拿锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo2</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone2 phone2 = <span class="keyword">new</span> Phone2();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone2.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">2</span>); </span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone2.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone2</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//该方法会睡3秒</span></span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景3：一个synchronized实例方法，一个普通实例方法：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 被synchronized 修饰的方法和普通方法 先执行加锁方法sendEmail() 还是 普通方法callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案： callPhone</span></span><br><span class="line"><span class="comment"> * 解释：新增加的这个方法没有 synchronized 修饰，不是同步方法，不受锁的影响，所以按时间顺序执行；</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo3</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone3 phone3 = <span class="keyword">new</span> Phone3();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone3.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone3.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone3</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">4</span>);</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 没有synchronized修饰的普通方法：先于加锁方法执行</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景4：两个 synchronized 实例方法对应两个调用者实例：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 被synchronized 修饰的不同方法 先执行sendEmail() 还是callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案：callPhone</span></span><br><span class="line"><span class="comment"> * 解释：被synchronized 修饰的不同方法 锁的对象是调用者</span></span><br><span class="line"><span class="comment"> * 这里锁的是两个不同的调用者，所有互不影响，按时间顺序执行；</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo4</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone4 phoneA = <span class="keyword">new</span> Phone4();</span><br><span class="line">        Phone4 phoneB = <span class="keyword">new</span> Phone4();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phoneA.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phoneB.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone4</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//睡3秒</span></span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景5：两个 static synchronized 静态方法：按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 两个静态同步方法 都被synchronized 修饰 是先sendEmail() 还是callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案：sendEmial</span></span><br><span class="line"><span class="comment"> * 解释：只要方法被 static 修饰，锁的对象就是 Class模板对象,这个则全局唯一！</span></span><br><span class="line"><span class="comment"> *      这里是同一个锁，先获取到锁的先执行；</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo5</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone5 phone5 = <span class="keyword">new</span> Phone5();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone5.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone5.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone5</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景6：两个 static synchronized 静态方法，使用两个实例调用：按拿锁顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 同被static+synchronized 修饰的两个方法，是先sendEmail()还是callPhone()?</span></span><br><span class="line"><span class="comment"> *  答案：sendEmail</span></span><br><span class="line"><span class="comment"> *  解释：虽然有两个对象，但锁的对象是 Class模板,这个全局唯一,所以按方法获取到Class模板锁的顺序执行</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test3</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone5 phone5 = <span class="keyword">new</span> Phone5();</span><br><span class="line">        Phone5 phone5s = <span class="keyword">new</span> Phone5();</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            phone5.sendEmail();</span><br><span class="line">        &#125;, <span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            phone5s.callPhone();</span><br><span class="line">        &#125;, <span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone5</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//sleep三秒</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景7：一个 synchronized 实例方法和一个 static synchronized 静态方法：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 被synchronized 修饰的普通方法和静态方法  是先sendEmail() 还是 callPhone()?</span></span><br><span class="line"><span class="comment"> * 答案：callPhone</span></span><br><span class="line"><span class="comment"> * 解释：只要被static synchronized 修饰锁的是class模板, 而 synchronized 锁的是调用的对象</span></span><br><span class="line"><span class="comment"> * 这里是两个锁互不影响，按时间先后执行</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo6</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone6 phone6 = <span class="keyword">new</span> Phone6();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phone6.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phone6.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone6</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);<span class="comment">//睡了3秒</span></span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景8：一个 synchronized 实例方法和一个 static synchronized 静态方法，使用两个实例调用：按时间顺序执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 一个被static+synchronized 修饰的方法和普通的synchronized方法，先执行sendEmail()还是callPhone()？</span></span><br><span class="line"><span class="comment"> * 答案：callPhone()</span></span><br><span class="line"><span class="comment"> * 解释： 只要被 static+synchronized 修饰的锁的就是整个class模板</span></span><br><span class="line"><span class="comment"> * 这里一个锁的是class模板 一个锁的是调用者(对象) ,所以互不影响，按时间顺序执行</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockDemo8</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Phone8 phoneA = <span class="keyword">new</span> Phone8();</span><br><span class="line">        Phone8 phoneB = <span class="keyword">new</span> Phone8();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                phoneA.sendEmail();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            phoneB.callPhone();</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone8</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">3</span>);</span><br><span class="line">        System.out.println(<span class="string">"sendEmail"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">callPhone</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"callPhone"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>总结：</strong></p>
+<p>1、对<strong>普通方法(实例方法)</strong>加 synchronized 锁时，锁的是调用该方法的<strong>实例</strong><br>2、对 <strong>static 修饰的方法(静态方法)</strong>加 synchronized 锁时，锁的是唯一的一个<strong>Class模板</strong>！<br>在我们编写多线程程序的时候，只需要搞明白这个到底锁的是什么就不会出错了！</p>
+<p><strong>6. Lock接口：</strong>方法有lock(),unlock(); lock.trylock(); 实现类有：</p>
+<ul>
+<li><p><strong>RenntrantLock(常用)</strong>：可重入锁；</p>
+</li>
+<li><p>ReentrantReadWriteLock . ReadLock 读锁；</p>
+</li>
+<li><p>ReentrantReadWriteLock . WriteLock 写锁；</p>
+</li>
+</ul>
+<p>6.1 RenntrantLock可实现<strong>公平锁与非公平锁</strong>：默认非公平；</p>
+<p><img src="https://i.loli.net/2020/08/17/oFZIur7dcCTK2eE.png" alt="image-20200817220020796"></p>
+<p>​    使用方法：（手动加锁解锁）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. Lock mylock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line"><span class="number">2</span>. mylock.lock();</span><br><span class="line"><span class="number">1</span>. <span class="keyword">try</span>..<span class="keyword">catch</span>..<span class="keyword">finally</span>;<span class="comment">//业务内容</span></span><br><span class="line"><span class="number">2</span>. mylock.unlock();</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>7. Synchronized 和 RenntrantLock锁的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Synchronized</strong></th>
+<th><strong>RenntrantLock等</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>类型</strong></td>
+<td>内置java<strong>关键字</strong></td>
+<td><strong>类</strong></td>
+</tr>
+<tr>
+<td>是否<strong>手动</strong></td>
+<td><strong>自动</strong>释放</td>
+<td><strong>手动</strong>释放,否则死锁</td>
+</tr>
+<tr>
+<td>锁的<strong>状态</strong></td>
+<td>无法判断获取锁的状态</td>
+<td>可<strong>判断是否获取</strong>到锁</td>
+</tr>
+<tr>
+<td><strong>等待</strong>状态</td>
+<td>被动等待</td>
+<td>可尝试获取锁：<strong>trylock()</strong></td>
+</tr>
+<tr>
+<td><strong>功能特征</strong></td>
+<td>可重入锁,不可中断,非公平</td>
+<td>可重入锁,可中断锁,可公平</td>
+</tr>
+<tr>
+<td>适用范围</td>
+<td>锁<strong>少量</strong>同步代码</td>
+<td>锁<strong>大量</strong>同步代码</td>
+</tr>
+</tbody></table>
+<p><strong>8.  生产者和消费者问题：</strong></p>
+<p>线程间的<strong>通信过程</strong>：判断是否等待 -&gt; 执行业务 -&gt; 通知唤醒其他线程</p>
+<p><strong>使用传统的synchronized锁实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data</span></span>&#123;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">0</span>; <span class="comment">//+1 </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span>&#123; </span><br><span class="line"><span class="keyword">while</span> (number!=<span class="number">0</span>)&#123;</span><br><span class="line">	<span class="keyword">this</span>.wait();<span class="comment">//等待 </span></span><br><span class="line">&#125; </span><br><span class="line">	number++; <span class="comment">//执行业务</span></span><br><span class="line">  <span class="keyword">this</span> .notifyA1l(); <span class="comment">//通知其他线程，我+1完毕了 </span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：<strong>wait()</strong> 应该总是出现在<strong>while循环</strong>中，若使用if判断,则可能导致<strong>虚假唤醒</strong>！Example：比如说买货，如果商品本来没有货物，突然进了一件商品，这是所有的线程都被唤醒了 ，但是只能一个人买，所以<strong>其他人都是假唤醒，因为获取不到对象的锁</strong>。</p>
+<p><strong>注:notify() 和 notifyAll()的区别</strong>:</p>
+<p>​        notify()方法只唤醒一个等待（对象的）线程并使该线程开始执行。所以如果有多个线程等待一个对象，这个方法只会唤醒其中一个线程，<strong>选择哪个线程取决于操作系统对多线程管理的实现。</strong>notifyAll() 会唤醒所有等待(对象的)线程，尽管哪一个线程将会第一个处理取决于操作系统的实现。</p>
+<p><strong>使用JUC实现生产者消费者问题：</strong></p>
+<ol>
+<li>lock.newCondition();</li>
+<li>lock.lock();</li>
+<li>使用 condition 的await() ,signal()/signalAll()方法；//根据业务唤醒</li>
+<li>lock.unlock();</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data2</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">0</span>;</span><br><span class="line">    Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">	Condition condition = lock.newCondition();</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        lock.lock(); </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">       		<span class="keyword">while</span> (number!=<span class="number">0</span>)&#123;</span><br><span class="line">            	condition.await(); <span class="comment">// 根据条件进入等待</span></span><br><span class="line">            	&#125;</span><br><span class="line">            number++; <span class="comment">// 业务代码</span></span><br><span class="line">            condition.signalAll();<span class="comment">// 通知其他线程，我+1完毕了</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123; lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与传统锁方法的对比：</p>
+<p><img src="https://i.loli.net/2020/08/17/b9KtrUAzHfPjRm5.png" alt="image-20200817231339363"></p>
+<p>使用condition监视器的<strong>优势</strong>：<strong>精准地通知和唤醒线程</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data3</span> </span>&#123; <span class="comment">// 资源类 Lock</span></span><br><span class="line">        <span class="keyword">private</span> Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">        <span class="keyword">private</span> Condition conditionA = lock.newCondition();</span><br><span class="line">        <span class="keyword">private</span> Condition conditionB = lock.newCondition();</span><br><span class="line">        <span class="keyword">private</span> Condition conditionC = lock.newCondition();</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">1</span>; <span class="comment">// 1A 2B 3C</span></span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printA</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (number != <span class="number">1</span>) &#123;</span><br><span class="line">                    conditionA.await();<span class="comment">// 等待</span></span><br><span class="line">                &#125;</span><br><span class="line">                number = <span class="number">2</span>;</span><br><span class="line">                conditionB.signal();<span class="comment">//指定唤醒conditonB监听的线程：B</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">    	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printB</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (number != <span class="number">2</span>) &#123;</span><br><span class="line">                    conditionB.await();</span><br><span class="line">                &#125;</span><br><span class="line">                number = <span class="number">3</span>;</span><br><span class="line">                conditionC.signal();<span class="comment">//指定唤醒conditonC监听的线程：C</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printC</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (number != <span class="number">3</span>) &#123;</span><br><span class="line">                    conditionC.await();</span><br><span class="line">                &#125;</span><br><span class="line">                number = <span class="number">1</span>;</span><br><span class="line">                conditionA.signal();<span class="comment">//指定唤醒conditonA监听的线程：A</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-ReadWriteLock接口-读写锁-："><a href="#9-ReadWriteLock接口-读写锁-：" class="headerlink" title="9. ReadWriteLock接口 (读写锁)："></a>9. ReadWriteLock接口 (读写锁)：</h3><p>​    方法：readLock(); writeLock(); //可以实现：可单个线程同时写；多个线程同时读(没有线程在写的时候)，</p>
+<p>​    实现类：<strong>ReentrantReadWriteLock</strong> ：读写锁。</p>
+<p>用这种锁可以实现<strong>更加细粒度的控制，可选择加读锁还是加写锁</strong>：</p>
+<p>readLock()可防止在读的时候被写入；【共享锁】：多个读线程可同时持有；</p>
+<p>writeLock()可防止在写的时候被读取；【排他锁】：每次只能一个线程持有；</p>
+<h3 id="10-集合的线程安全问题："><a href="#10-集合的线程安全问题：" class="headerlink" title="10. 集合的线程安全问题："></a><strong>10. 集合的线程安全问题：</strong></h3><ol>
+<li><strong>ArrayList：</strong>多线程下，对ArrayList做出修改，会出现java. util. ConcurrentModificationException  <strong>并发修改异常</strong>！</li>
+</ol>
+<p>解决方案: </p>
+<ul>
+<li>使用Collection.SynchronizedArrayList&lt;&gt;(); 直接加同步锁，效率低</li>
+<li><strong>使用CopyOnWriteArrayList【写入时复制】</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> List&lt;String&gt; list = <span class="keyword">new</span> CopyOnWriteArrayList&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<p><strong>COW技术：</strong>开始时内核并不会复制整个地址空间，而是让父子进程共享地址空间，只有在写时才复制地址空间，使得父子进程都拥有独立的地址空间，即资源的复制是在只有需要写入时才会发生。</p>
+<p>​    <strong>只有在写入/删除的时候，才会从原来的数据复制一个副本出来，然后修改这个副本，最后把原数据替换成当前的副本。</strong>CopyOnWriteArrayList 比 Vector牛逼在哪？ <strong>只在add/delete方法里用了lock锁；(只有在修改时才加锁)</strong>；</p>
+<ol start="2">
+<li><strong>HashSet</strong>：多线程下，对HashSet做出修改，会出现java. util. ConcurrentModificationException  <strong>并发修改异常</strong>！</li>
+</ol>
+<p>解决方案：</p>
+<ul>
+<li>使用Collection.SynchronizedSet&lt;&gt;(); 直接加同步锁，效率低</li>
+<li><strong>使用CopyOnWriteArraySet【写入时复制】</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;String&gt; set = <span class="keyword">new</span> CopyOnWriteArraySet&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<p><strong>注：HashSet底层</strong>：是HashMap实现的：set内的元素就是map中的“key”；value是一个PRESENT常量</p>
+<ol start="3">
+<li><strong>HashMap：</strong></li>
+</ol>
+<p>回顾：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;(capacity ,factor);</span><br><span class="line"><span class="comment">//构造函数：初始容量，加载因子：默认：16，0.75；</span></span><br></pre></td></tr></table></figure>
+
+<p>多线程下，对HashSet做出修改，会出现java. util. ConcurrentModificationException  <strong>并发修改异常</strong>！</p>
+<p>解决方案：</p>
+<ul>
+<li>使用Collection.SynchronizedMap&lt;&gt;(); 直接加同步锁，效率低</li>
+<li><strong>使用ConcurrentHashMap:细化加锁粒度，非整个Map加锁，JDK1.8也摒弃了Segment加锁，直接对Node加锁</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; map = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="11-Callable接口："><a href="#11-Callable接口：" class="headerlink" title="11. Callable接口："></a>11. Callable接口：</h3><p><strong>与runnable接口的区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Runnable</th>
+<th>Callable</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>返回值</td>
+<td>无</td>
+<td>返回泛型类型的<strong>返回值</strong></td>
+</tr>
+<tr>
+<td>异常</td>
+<td>不能抛出</td>
+<td>可抛出已检查<strong>异常</strong></td>
+</tr>
+<tr>
+<td>方法</td>
+<td>run()</td>
+<td><strong>call()</strong></td>
+</tr>
+</tbody></table>
+<p>使用方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallableTest</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> , main(String[] args) &#123;</span><br><span class="line">        MyThread thread = <span class="keyword">new</span> MyThread(); </span><br><span class="line">        FutureTask futureTask = <span class="keyword">new</span> FutureTask(thread); <span class="comment">// 把thread封装进futuretask里面；</span></span><br><span class="line">        <span class="keyword">new</span> Thread(futureTask, name: <span class="string">"A"</span>). start(); 	<span class="comment">// 调用futuretask线程</span></span><br><span class="line">        Integer o = (Integer) futureTask. get(); <span class="comment">// 获取Callable线程的返回结果</span></span><br><span class="line">        <span class="comment">//这个get方法可能产生阻塞，因为他要等待结果的产生。要么通过异步通信来获取此结果。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Integer <span class="title">call</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System. out . println(<span class="string">"call()"</span>); </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1024</span>; <span class="comment">//返回值的类型为 Integer</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注：</p>
+<ol>
+<li><p>这个get方法获取结果可能产生阻塞，因为他要等待结果的产生；要么通过异步通信来获取此结果。</p>
+</li>
+<li><p>这个结果会缓存下来</p>
+</li>
+</ol>
+<h3 id="12-三大常用辅助工具类"><a href="#12-三大常用辅助工具类" class="headerlink" title="12. 三大常用辅助工具类"></a>12. 三大常用辅助工具类</h3><ol>
+<li><p><strong>CountDownLatch</strong>：倒数计数器:</p>
+<p>每次有线程调用countDownLatch(), 数量-1 , 当计数器变为0 , countDownLatch.await()就会被唤醒,继续执行!</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">核心方法：</span><br><span class="line">CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">6</span>);<span class="comment">//new一个计数器，初始值为6</span></span><br><span class="line">countDownLatch. countDown(); <span class="comment">//计数-1；</span></span><br><span class="line">countDownLatch.await(); <span class="comment">//等待计数器归零，然后再向下执行</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Demo:   </span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountDownLatchDemo</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">            <span class="comment">//总数是6，必须要执行任务的时候，再使用!</span></span><br><span class="line">            CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">6</span>);</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=<span class="number">6</span>;i++)&#123;</span><br><span class="line">                <span class="keyword">new</span> Thread(()-&gt;&#123;System.out.println(Thread.currentThread().getName()+<span class="string">" Go out"</span>);</span><br><span class="line">                    countDownLatch. countDown(); <span class="comment">//数量-1</span></span><br><span class="line">                &#125;,String.valueOf(i)).start();</span><br><span class="line">            &#125;</span><br><span class="line">            countDownLatch. await(); <span class="comment">//等待计数器归零，然后再向下执行!</span></span><br><span class="line">            System.out.println(<span class="string">"Close Door"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>CyclicBarrier:</strong> 循环栅栏</p>
+<p>从字面上的意思可以知道，这个类的中文意思是“循环栅栏”。大概的意思就是一个可循环利用的屏障。</p>
+<p><strong>它的作用就是会让所有线程都等待完成后才会继续下一步行动</strong>。</p>
+<ul>
+<li>线程调用 await() 表示自己已经到达栅栏；</li>
+<li>当所有线程到达栅栏的数量等于设置的数量（这里是7）时，程序继续往下执行</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        CyclicBarrier cyclicBarrier = <span class="keyword">new</span> CyclicBarrier(<span class="number">7</span>,()-&gt;&#123;</span><br><span class="line">            System.out.println(<span class="string">"召唤神龙成功"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">7</span>; i++) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">int</span> finalI = i;</span><br><span class="line">            <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+finalI);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    cyclicBarrier.await();<span class="comment">//等待7次</span></span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException | BrokenBarrierException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Semaphore：信号量</strong></p>
+<p>用于<strong>限制可以访问某些资源（物理或逻辑的）的线程数目</strong>：</p>
+<p>比如：假如有3个窗口可以打饭，同一时刻也只能有3名同学打饭。第四个人来了之后就必须在外面等着，只要有打饭的同学好了，就可以去相应的窗口了。</p>
+<p>用法：acquire()方法、release()方法</p>
+<p><img src="https://i.loli.net/2020/08/18/rzWDk2oy86m5bZA.png" alt="image-20200818205829517"></p>
+<p><code>acquire()</code>:获取信号量，若获得不到则一直等待直到获得；</p>
+<p><code>release（）</code>：释放信号量, 会将当前的可用信号量+ 1 ,然后噪醒等待的线程；</p>
+<p>应用场景：多个共享资源互斥的使用!<strong>并发限流,控制最大的线程数</strong></p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/08/15/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6/" rel="next" title="动态代理机制">
+                <i class="fa fa-chevron-left"></i> 动态代理机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">田济荣</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jirong0214" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:geekouc@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://i.loli.net/2020/07/09/PqjnfpmXblhDYOJ.jpg" target="_blank" title="Wechat">
+                      
+                        <i class="fa fa-fw fa-wechat"></i>Wechat</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#tags-多线程"><span class="nav-number">1.</span> <span class="nav-text">tags:多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程与并发编程学习笔记"><span class="nav-number">2.</span> <span class="nav-text">多线程与并发编程学习笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-ReadWriteLock接口-读写锁-："><span class="nav-number">2.1.</span> <span class="nav-text">9. ReadWriteLock接口 (读写锁)：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-集合的线程安全问题："><span class="nav-number">2.2.</span> <span class="nav-text">10. 集合的线程安全问题：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Callable接口："><span class="nav-number">2.3.</span> <span class="nav-text">11. Callable接口：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-三大常用辅助工具类"><span class="nav-number">2.4.</span> <span class="nav-text">12. 三大常用辅助工具类</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">田济荣</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
