@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="时间 内容    7.17-7.20 Spring+整理笔记   7.21-7.25 SpringBoot+小项目   7.26-8.10 秒杀系统项目+整理笔记      每日作息      上午 剑指Offer+复习旧题    下午 学习框架&#x2F;项目    晚上 学习框架&#x2F;项目    深夜 LeetCode">
-<meta property="og:type" content="website">
-<meta property="og:title" content="学习计划">
-<meta property="og:url" content="http://yoursite.com/schedule/index.html">
+<meta name="description" content="tags:JVMJVM调优  如何避免频繁fullGC?   出现fullgc的原因： 1.年轻代空间不足 2.per Gen（永久代）空间满 3.CMS GC时出现promotion failed和concurrent mode failure 4.统计得到的Minor GC晋升到旧生代的平均大小大于旧生代的剩余空间等  解决：  增大survive区大小 降低大对象的生命周期 避免产生过多可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM调优">
+<meta property="og:url" content="http://yoursite.com/2020/08/21/JVM%E8%B0%83%E4%BC%98/index.html">
 <meta property="og:site_name" content="GeekOUC">
-<meta property="og:description" content="时间 内容    7.17-7.20 Spring+整理笔记   7.21-7.25 SpringBoot+小项目   7.26-8.10 秒杀系统项目+整理笔记      每日作息      上午 剑指Offer+复习旧题    下午 学习框架&#x2F;项目    晚上 学习框架&#x2F;项目    深夜 LeetCode">
-<meta property="article:published_time" content="2020-07-08T12:52:00.000Z">
-<meta property="article:modified_time" content="2020-07-16T15:03:47.848Z">
+<meta property="og:description" content="tags:JVMJVM调优  如何避免频繁fullGC?   出现fullgc的原因： 1.年轻代空间不足 2.per Gen（永久代）空间满 3.CMS GC时出现promotion failed和concurrent mode failure 4.统计得到的Minor GC晋升到旧生代的平均大小大于旧生代的剩余空间等  解决：  增大survive区大小 降低大对象的生命周期 避免产生过多可">
+<meta property="article:published_time" content="2020-08-20T16:52:26.880Z">
+<meta property="article:modified_time" content="2020-08-20T16:55:31.472Z">
 <meta property="article:author" content="田济荣">
 <meta name="twitter:card" content="summary">
 
@@ -118,13 +118,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/schedule/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/08/21/JVM调优/"/>
 
 
 
 
 
-  <title>学习计划 | GeekOUC</title>
+  <title>JVM调优 | GeekOUC</title>
   
 
 
@@ -269,82 +269,162 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/21/JVM%E8%B0%83%E4%BC%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-	<h1 class="post-title" itemprop="name headline">学习计划</h1>
-
-
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <table>
-<thead>
-<tr>
-<th>时间</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>7.17-7.20</td>
-<td>Spring+整理笔记</td>
-</tr>
-<tr>
-<td>7.21-7.25</td>
-<td>SpringBoot+小项目</td>
-</tr>
-<tr>
-<td>7.26-8.10</td>
-<td>秒杀系统项目+整理笔记</td>
-</tr>
-</tbody></table>
-<table>
-<thead>
-<tr>
-<th>每日作息</th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>上午</td>
-<td>剑指Offer+复习旧题</td>
-<td></td>
-</tr>
-<tr>
-<td>下午</td>
-<td>学习框架/项目</td>
-<td></td>
-</tr>
-<tr>
-<td>晚上</td>
-<td>学习框架/项目</td>
-<td></td>
-</tr>
-<tr>
-<td>深夜</td>
-<td>LeetCode</td>
-<td></td>
-</tr>
-</tbody></table>
-
+          <h1 class="post-title" itemprop="name headline">JVM调优</h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-21T00:52:26+08:00">
+                2020-08-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <hr>
+<h2 id="tags-JVM"><a href="#tags-JVM" class="headerlink" title="tags:JVM"></a>tags:JVM</h2><p>JVM调优</p>
+<ol>
+<li><h4 id="如何避免频繁fullGC"><a href="#如何避免频繁fullGC" class="headerlink" title="如何避免频繁fullGC?"></a>如何避免频繁fullGC?</h4></li>
+</ol>
+<ul>
+<li><p>出现fullgc的原因：</p>
+<p>1.年轻代空间不足</p>
+<p>2.per Gen（永久代）空间满</p>
+<p>3.CMS GC时出现promotion failed和concurrent mode failure</p>
+<p>4.统计得到的Minor GC晋升到旧生代的平均大小大于旧生代的剩余空间等</p>
+</li>
+<li><p>解决：</p>
+<ul>
+<li>增大survive区大小</li>
+<li>降低大对象的生命周期</li>
+<li>避免产生过多可以避免的大对象</li>
+<li><strong>增大永久代空间</strong></li>
+</ul>
+</li>
+</ul>
+
       
     </div>
     
     
     
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/08/17/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="多线程与并发编程学习笔记">
+                <i class="fa fa-chevron-left"></i> 多线程与并发编程学习笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/08/24/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B002/" rel="prev" title="多线程与并发编程学习笔记02">
+                多线程与并发编程学习笔记02 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -377,8 +457,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -460,6 +549,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#tags-JVM"><span class="nav-number">1.</span> <span class="nav-text">tags:JVM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何避免频繁fullGC"><span class="nav-number">1.0.1.</span> <span class="nav-text">如何避免频繁fullGC?</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

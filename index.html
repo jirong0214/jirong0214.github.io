@@ -278,6 +278,555 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/24/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B002/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/24/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B002/" itemprop="url">多线程与并发编程学习笔记02</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-24T09:04:00+08:00">
+                2020-08-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<h2 id="tags-多线程"><a href="#tags-多线程" class="headerlink" title="tags:多线程"></a>tags:多线程</h2><h2 id="多线程与并发编程学习笔记02"><a href="#多线程与并发编程学习笔记02" class="headerlink" title="多线程与并发编程学习笔记02"></a>多线程与并发编程学习笔记02</h2><h3 id="13-阻塞队列-（多线程并发和线程池的时候经常使用）"><a href="#13-阻塞队列-（多线程并发和线程池的时候经常使用）" class="headerlink" title="13. 阻塞队列  （多线程并发和线程池的时候经常使用）"></a>13. 阻塞队列  （多线程并发和线程池的时候经常使用）</h3><p>BlockQueue接口：<strong>指定队列大小</strong>,若队列满则阻塞等待；取元素时若为空则阻塞等待</p>
+<p>Queue接口的类图</p>
+<p><img src="https://i.loli.net/2020/08/24/o12Yl6mwFZOHikx.png" alt="image-20200824092340874"></p>
+<p><strong>重要的实现类：</strong></p>
+<p>-&gt; <strong>ArrayBlockingQueue</strong> </p>
+<p>-&gt; <strong>LinkedBlockingQueue</strong></p>
+<p>-&gt; <strong>SynchronousQueue【重点】</strong></p>
+<p><strong>4组API：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法/API</th>
+<th>抛出异常</th>
+<th>返回值</th>
+<th>阻塞等待</th>
+<th>超时等待</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>添加元素</td>
+<td><strong>add()</strong></td>
+<td><strong>offer()</strong></td>
+<td><strong>put()</strong></td>
+<td><strong>offer(”a”,2,秒)</strong></td>
+</tr>
+<tr>
+<td>移除元素</td>
+<td><strong>remove()</strong></td>
+<td><strong>poll()</strong></td>
+<td><strong>take()</strong></td>
+<td><strong>poll(2,秒)</strong></td>
+</tr>
+<tr>
+<td>查看队列首</td>
+<td><strong>element()</strong></td>
+<td><strong>peek()</strong></td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p><strong>SynchronousQueue 同步队列：</strong>【进一个取一个】</p>
+<p><strong>SynchronousQueue没有容量，是无缓冲等待队列</strong>，是一个不存储元素的阻塞队列，会直接将任务交给消费者，必须等队列中的添加元素被消费后才能继续添加新的元素。</p>
+<p>拥有<strong>公平(FIFO)(TransferQueue)和非公平(LIFO)(TransferStack)策略</strong>，非公平策略会导致一些数据永远无法被消费的情况.</p>
+</li>
+</ul>
+<h3 id="14-线程池【重要】【3大方法-7大参数-4种拒绝】"><a href="#14-线程池【重要】【3大方法-7大参数-4种拒绝】" class="headerlink" title="14.线程池【重要】【3大方法/7大参数/4种拒绝】"></a>14.线程池【重要】【3大方法/7大参数/4种拒绝】</h3><p><strong>14.1 池化技术</strong>：线程池、数据库连接池、内存池、常量池…</p>
+<p><strong>线程池</strong>： 线程池就是首先创建一些线程，它们的集合称为线程池。使用线程池可以很好地提高性能，<strong>线程池在系统启动时即创建大量空闲的线程，程序将一个任务传给线程池，线程池就会启动一条线程来执行这个任务</strong>，执行结束以后，该线程并不会死亡，而是<strong>再次返回线程池中成为空闲状态，等待执行下一个任务</strong>。</p>
+<ul>
+<li>工作机制：<ul>
+<li>在线程池的编程模式下，任务提交给整个线程池，而不是直接提交给某个线程，<strong>线程池在拿到任务后，就在内部寻找是否有空闲的线程，如果有，则将任务交给某个空闲的线程</strong>。</li>
+<li>一个线程同时只能执行一个任务，但可以同时向一个线程池提交多个任务。</li>
+</ul>
+</li>
+<li>优点：<ul>
+<li>避免线程的频繁创建、销毁；提高<strong>效率和访问速度</strong>。</li>
+<li>实现<strong>线程复用</strong>、<strong>线程管理</strong>、控制<strong>最大并发</strong>数。</li>
+</ul>
+</li>
+</ul>
+<p><strong>14.2 创建线程池</strong>的方法：</p>
+<ol>
+<li>使用<strong>Executors工具类</strong>的3种构造方法：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService threadPool = Executors.newsingleThreadExecutor();  <span class="comment">//单个线程的线程池</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService threadPoo1 = Executors.newFixedThreadpool(<span class="number">5</span>); </span><br><span class="line"><span class="comment">//创建一个固定的线程池的大小</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService threadPool = Executors.newCachedThreadPool(); </span><br><span class="line"><span class="comment">//可伸缩的，遇强则强，遇弱则弱</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>使用<strong>ThreadPoolExecutor构造方法</strong>：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize, //核心线程池基本大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> maximumPoolSzie,//最大线程池大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">long</span> keepAliveTime,//非核心线程的超时时间</span></span></span><br><span class="line"><span class="function"><span class="params">                          TimeUnit unit,//超时的单位</span></span></span><br><span class="line"><span class="function"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue,//阻塞队列</span></span></span><br><span class="line"><span class="function"><span class="params">                          ThreadFactory threadFactory,//线程工厂：用于创建线程</span></span></span><br><span class="line"><span class="function"><span class="params">                          RejectedExecutionHandler handler//拒绝策略</span></span></span><br><span class="line"><span class="function"><span class="params">                         )</span></span></span><br></pre></td></tr></table></figure>
+
+<p>两种方法本质：都是调用了<strong>ThreadPoolExecutor (7个参数)</strong>【因此：<strong>线程池要使用此方法去创建</strong>，而不是用Executors下的方法】</p>
+<p><strong>14.3 线程池调用流程</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">使用构造方法后，返回一个线程池threadPool;</span><br><span class="line">threadPool.execute();<span class="comment">//使用线程池提交任务：</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2020/08/24/fxcMDjmCkoZVbnQ.png" alt="image-20200824130100218"></p>
+<ol>
+<li>如果当前线程池中的线程数目<strong>小于corePoolSize</strong>，则每来一个任务，就会<strong>创建一个线程</strong>去执行这个任务；</li>
+<li>如果当前线程池中的线程数目<strong>&gt;=corePoolSize</strong>，则每来一个任务，会尝试将<strong>该任务添加到任务缓存队列</strong>中，若添加成功，则该任务会<strong>等待空闲线程将其取出去执行</strong>；若<strong>添加失败</strong>（一般来说是任务缓存队列已满），则会尝试<strong>创建新的线程</strong>去执行这个任务；</li>
+<li>如果当前线程池中的<strong>线程数达到maximumPoolSize</strong>，则会采取任务<strong>拒绝策略</strong>进行处理；</li>
+<li>如果线程池中的线程数量<strong>大于 corePoolSize时</strong>，如果某线程空闲时间<strong>超过keepAliveTime，线程将被终止</strong>，直至线程池中的线程数目不大于corePoolSize；如果允许为核心池中的线程设置存活时间，那么核心池中的线程空闲时间超过keepAliveTime，线程也会被终止。</li>
+</ol>
+<p><strong>14.4 为什么使用阻塞队列</strong>？</p>
+<p><strong>阻塞队列主要是用于生产者-消费者模型的情况</strong>： 比如一个线程从一个空的阻塞队列中取元素，此时线程会被阻塞直到阻塞队列中有了元素。当队列中有元素后，被阻塞的线程会自动被唤醒(不需要我们编写代码去唤醒)。</p>
+<p>​        这样提供了极大的方便性。 如果使用非阻塞队列，它不会对当前线程产生阻塞,就必须额外地实现同步策略以及线程间唤醒策略，这个实现起来就非常麻烦。</p>
+<p><strong>拒绝策略</strong>：4种：</p>
+<table>
+<thead>
+<tr>
+<th>ThreadPoolExecutor.AbortPolicy</th>
+<th>丢弃任务，并抛出RejectedExecutionException异常【默认】</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ThreadPoolExecutor.AbortPolicy</strong></td>
+<td>丢弃任务，但是<strong>不抛出</strong>异常</td>
+</tr>
+<tr>
+<td><strong>ThreadPoolExecutor.DiscardOldestPolicy</strong></td>
+<td><strong>丢弃队列最老的</strong>任务，然后重新提交被拒绝的任务</td>
+</tr>
+<tr>
+<td><strong>ThreadPoolExecutor.CallerRunsPolicy</strong></td>
+<td>由<strong>调用线程（提交任务的线程）处理</strong>该任务</td>
+</tr>
+</tbody></table>
+<p><strong>14.5 最大线程数如何选择？</strong></p>
+<p>CPU密集型任务：maximumPoolSize = CPU核心数量；保持CPU效率最高</p>
+<p>IO 密集型任务 ：maximumPoolSize = CPU核心数量 * 2；</p>
+<h3 id="15-函数式接口【重要】："><a href="#15-函数式接口【重要】：" class="headerlink" title="15. 函数式接口【重要】："></a>15. 函数式接口【重要】：</h3><p>新时代的程序员要掌握的编程技术: lambda表达式、链式编程、 函数式接口、Stream流式计算</p>
+<p><code>函数式接口：只有一个方法的接口  @FunctionalInterface</code></p>
+<p><strong>15.1 4种函数式接口:</strong></p>
+<ul>
+<li><p><strong>Function</strong>【<strong>函数型</strong>】：一个输入，输出一个返回值；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Function&lt;String, String&gt; function = str -&gt; &#123;<span class="keyword">return</span> str;&#125;; <span class="comment">//lambda表达式简化</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Predicate【判断型】:</strong> 一个输入，输出一个boolean的返回值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;<span class="comment">//判断字符串是否为空的函数</span></span><br><span class="line">        System.out.println(predicate.test(<span class="string">"111"</span>));<span class="comment">//输出false;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Consumer【消费型</strong>】：一个输入，没返回值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Consumer&lt;String&gt; consumer = System.out::println;<span class="comment">//只是打印，没有返回值</span></span><br><span class="line">        consumer.accept(<span class="string">"12345"</span>);<span class="comment">//打印了”12345“</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Supplier 【供给型】</strong>：没有输入，只有返回值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Supplier&lt;Integer&gt; supplier = () -&gt; <span class="number">1024</span>;<span class="comment">//没有参数</span></span><br><span class="line">    System.out.println(supplier.get());<span class="comment">//提供1024</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p><strong>15.2 Stream 流式计算：</strong></p>
+<img src="https://i.loli.net/2020/08/24/RmMiufY5bTerFJH.png" alt="image-20200824150553674 " style="zoom:70%;" />
+
+
+
+<h3 id="16-ForkJoin"><a href="#16-ForkJoin" class="headerlink" title="16. ForkJoin"></a>16. ForkJoin</h3><p>Since : JDK1.7+</p>
+<p>原理：</p>
+<ol>
+<li><strong>分治</strong></li>
+</ol>
+<img src="https://i.loli.net/2020/08/24/QrhpPVwEMlvR3BN.png" alt="image-20200824152323862" style="zoom:67%;" />
+
+<ol start="2">
+<li><strong>工作窃取</strong>：工作窃取算法是指某个线程从其他队列里窃取任务来执行。</li>
+</ol>
+<img src="https://i.loli.net/2020/08/25/79Nt4ghOSbJWfHM.png" alt="image-20200825132323848" style="zoom:50%;" />
+
+<p>​    - 工作窃取算法的优点：<strong>充分利用线程</strong>进行<strong>并行</strong>计算，减少了线程间的竞争。</p>
+<pre><code>- 工作窃取算法的缺点：在某些情况下还是存在竞争，比如双端队列里只有一个任务时。并且该算法会消耗了更多的系统资源，比如**创建多个线程和多个双端队列**。</code></pre><p>ForkJoin类似于分治思想，只是分成小任务后使用的是多个线程并行执行小任务，从而加速计算。</p>
+<p><strong>但是还是Stream并行流式计算，速度最快</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> sum = LongStream.rangeClosed(<span class="number">0L</span>, <span class="number">10</span>_ <span class="number">0000</span>_ _00L).parallel().reduce( identity:<span class="number">0</span>,Long::sum);</span><br></pre></td></tr></table></figure>
+
+<p>只需1行代码，运算速度快100倍！</p>
+<h3 id="17-异步回调"><a href="#17-异步回调" class="headerlink" title="17. 异步回调"></a>17. 异步回调</h3><ul>
+<li><p><strong>是什么</strong>？在发起一个异步任务的同时指定一个函数，在<strong>异步任务完成时会自动的调用这个函数</strong>。</p>
+</li>
+<li><p><strong>为什么</strong>？需要<strong>获取异步任务的执行结果</strong>，但是<strong>又不应该让其阻塞</strong>（降低效率），即想要高效的获取任务的执行结果。</p>
+</li>
+<li><p><strong>怎么实现？</strong>使用Future接口下的<strong>CompletableFuture</strong>类；它的方法有：<strong>runAsync()</strong>;(无返回值)  <strong>supplyAsync()</strong>;有返回值；</p>
+</li>
+</ul>
+<h3 id="18-JMM"><a href="#18-JMM" class="headerlink" title="18. JMM"></a>18. JMM</h3><ul>
+<li><p><strong>JMM带来的问题</strong>:</p>
+<p>1) <strong>可见性问题</strong>：</p>
+<p>​        CPU中运行的线程从主存中拷贝共享对象obj到它的CPU缓存，把对象obj的count变量改为2。但这个<strong>变更对运行在右边CPU中的线程不可见</strong>，因为这个<strong>更改还没有flush到主存中</strong>。</p>
+<p>​        要解决共享对象可见性这个问题，我们可以使用 <strong>volatile</strong>关键字或者是<strong>加锁</strong>：</p>
+<img src="https://i.loli.net/2020/08/25/r5Bw8gemhjHISYU.png" alt="image-20200825145545276 " style="zoom:50%;" />
+
+
+
+</li>
+</ul>
+<p>​    2）<strong>竞争问题</strong>：</p>
+<p>​        线程A和线程B共享一个对象obj。假设线程A从主存读取Obj.count变量到自己的CPU缓存，同时，线程B也读取了Obj.count变量到它的CPU缓存，并且这两个线程都对Obj.count做了加1操作。此时，Obj.count加1操作被执行了两次，不过都在不同的CPU缓存中<strong>。如果这两个加1操作是串行执行的，那么Obj.count变量便会在原始值上加2，最终主存中的Obj.count的值会是3</strong>。然而下图中两个加1操作是<strong>并行的</strong>，不管是线程A还是线程B先flush计算结果到主存，<strong>最终主存中的Obj.count只会增加1次变成2</strong>，尽管一共有两次加1操作。 要解决上面的问题我们可以使用 <strong>synchronized</strong>代码块。</p>
+<ul>
+<li><p>JMM<strong>中的指令重排：</strong></p>
+<ul>
+<li><p>在执行程序时，为了提高性能，编译器和处理器常常会对指令做重排序，指令重排包括：</p>
+<ul>
+<li><strong>编译器</strong>优化</li>
+<li><strong>CPU</strong>的指令级并行</li>
+<li><strong>内存</strong>系统重排序</li>
+</ul>
+</li>
+<li><p><strong>as-if-serial关系 ：</strong> 不管怎么重排序（编译器和处理器为了提高并行度,程序的执行结果不能被改变。编译器、runtime和处理器都必须遵守as-if-serial语义。为了遵守as-if-serial语义，编译器和处理器<strong>不会对存在数据依赖关系的操作做重排序</strong>，因为这种重排序会改变执行结果。【仅限于<strong>单线程</strong>】</p>
+<p><strong>多线程下JMM的指令重排带来的问题</strong>：在多线程中：对存在控制依赖的操作重排序，可能会改变程序的执行结果.</p>
+</li>
+<li><p><strong>happens-before关系</strong>：保证正确同步的多线程程序的执行结果不被改变，满足可见性的程序都满足此关系。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>volitale</strong>关键字可解决：</p>
+<ul>
+<li><p><strong>可见性</strong>：【原理是<strong>MESI</strong>】</p>
+<ul>
+<li>当<strong>写</strong>一个volatile变量时：JMM会把该线程对应的本地内存中的共享变量值<strong>立即刷新到主内存</strong>。</li>
+<li>当<strong>读</strong>一个volatile变量时：JMM会把该线程对应的<strong>本地内存变量置为无效</strong>。线程接下来将<strong>从主内存中读取</strong>共享变量。</li>
+</ul>
+</li>
+<li><p><strong>有序性</strong>：【原理是<strong>内存屏障</strong>】：</p>
+<ul>
+<li><strong>volatile写操作</strong>的前面插入一个<strong>StoreStore屏障</strong>，后面插入一个<strong>StoreLoad屏障</strong>，禁止前面指令和后面指令交换顺序。</li>
+<li><strong>volatile读操作</strong>的后面插入一个<strong>LoadLoad屏障</strong>， 后面插入一个<strong>LoadStore屏障</strong>，禁止前面指令和后面指令交换顺序。</li>
+</ul>
+</li>
+<li><p><strong>不保证原子性：</strong></p>
+<p>对任意单个volatile变量的读/写具有原子性，但类似于<strong>i++这种复合操作不具有原子性</strong>。</p>
+<p><strong>那么如何保证原子性呢</strong>？ -&gt; lock、synchronized 【效率低】</p>
+<p>​                                            -&gt; <strong>使用原子类</strong>，例如AtomicInteger等；【底层是CAS】</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> AtomicInteger num = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line">num.getAndIncrement(); <span class="comment">// AtomicInteger + 1 ; 此方法原理是使用了 CAS</span></span><br></pre></td></tr></table></figure>
+
+<p>原子类的底层都直接和操作系统挂钩! 在内存中修改值! 其使用到的Unsafe类是一个很特殊的存在 !</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="19-单例模式"><a href="#19-单例模式" class="headerlink" title="19. 单例模式"></a>19. 单例模式</h3><p> <strong>1. 饿汉式</strong>:【永远提前加载，耗费系统资源】</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>饿汉式</strong>：【双重检测+锁+Volatile】<strong>重要</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonLazy</span> </span>&#123;</span><br><span class="line">    <span class="comment">//懒汉式</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingletonLazy</span><span class="params">()</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> SingletonLazy lazy;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SingletonLazy <span class="title">getLazy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(lazy == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (SingletonLazy<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(lazy == <span class="keyword">null</span>)&#123;</span><br><span class="line">                    lazy = <span class="keyword">new</span> SingletonLazy(); <span class="comment">//这不是一个原子性操作!</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> lazy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>为何要双重检测</strong>？因为除第一次调用外，大部分情况是单例已经创建，因此在外层加锁会导致每次调用此方法都会加锁，影响性能。所以在内层加锁，并且进入内层之后需要再次进行判断单例是否已经存在，若仍不存在，此时才可放心创建。</p>
+</li>
+<li><p><strong>为何声明单例时要加volatile？</strong>因为<code>lazy = new SingletonLazy();</code><strong>不是一个原子性操作,</strong>其步骤是：</p>
+<ol>
+<li>分配内存空间</li>
+<li>执行构造方法 初始化对象</li>
+<li>把对象指向这个内存空间</li>
+</ol>
+<p>由于<strong>指令重排</strong>的存在，可能使上述指令变为1-&gt;3-&gt;2的顺序，这样就会<strong>导致其他线程获取一个null的单例对象</strong>；</p>
+</li>
+</ul>
+<ol start="3">
+<li><p><strong>静态内部类实现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Holder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Holder</span><span class="params">()</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">InnerClass</span></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Holder HOLDER = <span class="keyword">new</span> Holder();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Holder <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> InnerClass.HOLDER;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="4">
+<li><p><strong>安全问题</strong>：无论是使用以上哪种方式，只要是以<strong>private修饰构造器</strong>用来限制外部调用的，都可以用<strong>反射机制破解</strong>！</p>
+<ul>
+<li><p>首先用<strong>getDeclaredConstructor()</strong>通过反射获取构造器</p>
+</li>
+<li><p>然后用<strong>setAccessible(true)</strong>即可无视构造器的private修饰符</p>
+</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        SingletonLazy instance1 = SingletonLazy.getLazy();</span><br><span class="line">        Constructor&lt;SingletonLazy&gt; constructor = SingletonLazy<span class="class">.<span class="keyword">class</span>.<span class="title">getDeclaredConstructor</span>(<span class="title">null</span>)</span>;<span class="comment">//通过反射获取构造器</span></span><br><span class="line">        constructor.setAccessible(<span class="keyword">true</span>);<span class="comment">//通过反射 无视构造器的private修饰符！！</span></span><br><span class="line">        SingletonLazy instance2 = constructor.newInstance();</span><br><span class="line">        System.out.println(instance1 == instance2);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>那么，单例类如何防止反射？</strong></p>
+<p>在其构造器内加入<strong>flag秘钥校验</strong>，使其在第二次被调用时抛出异常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;  </span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;  </span><br><span class="line">    <span class="keyword">synchronized</span>(Singleton<span class="class">.<span class="keyword">class</span>)</span>&#123;  </span><br><span class="line">        <span class="keyword">if</span>(flag == <span class="keyword">false</span>)&#123;  </span><br><span class="line">            flag = !flag;  </span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"单例模式被侵犯！"</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，若<strong>flag秘钥被泄露</strong>，同样可以通过<strong>反射</strong>将flag设置为相应的值，从而破解单例模式。</p>
+<ol start="5">
+<li>使用 <strong>枚举类enum</strong> 【现如今最推荐的单例模式方法】</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//enum默认就是单例的,又简单又牛逼,不存在安全问题！</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> EnumSingle &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> EnumSingle <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>修复安全问题：</strong></p>
+<ul>
+<li><p>当我们尝试像往常一样使反射破解枚举类时：</p>
+<p>出现异常:<strong>Cannot reflectively create enum objects</strong>【不能通过反射创建枚举对象】</p>
+<p>这是因为反射包的newInstance()方法中添加了以上的异常，<strong>禁止了通过反射创建枚举对象</strong>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException </span>&#123;</span><br><span class="line">        EnumSingle instance1 = EnumSingle.INSTANCE;</span><br><span class="line">        Constructor&lt;EnumSingle&gt; constructor = EnumSingle<span class="class">.<span class="keyword">class</span>.<span class="title">getDeclaredConstructor</span>(<span class="title">String</span>.<span class="title">class</span>,<span class="title">int</span>.<span class="title">class</span>)</span>;<span class="comment">//注意：枚举类只有有参构造器！</span></span><br><span class="line">        <span class="comment">//尝试使反射破解枚举类时,出现异常:Cannot reflectively create enum objects！</span></span><br><span class="line">        constructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        EnumSingle instance2 = constructor.newInstance();</span><br><span class="line">        System.out.println(instance1 == instance2);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>序列化问题</strong></p>
+<p>当使用反序列化时，也会破坏单例模式，导致<strong>反序列化时生成的实例和之前的实例并不是同一个</strong>！</p>
+<p>而由于枚举类enum优先于反序列化方法readResolve(),因此<strong>不会被反序列化破坏单例</strong>。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/21/JVM%E8%B0%83%E4%BC%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/21/JVM%E8%B0%83%E4%BC%98/" itemprop="url">JVM调优</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-21T00:52:26+08:00">
+                2020-08-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<h2 id="tags-JVM"><a href="#tags-JVM" class="headerlink" title="tags:JVM"></a>tags:JVM</h2><p>JVM调优</p>
+<ol>
+<li><h4 id="如何避免频繁fullGC"><a href="#如何避免频繁fullGC" class="headerlink" title="如何避免频繁fullGC?"></a>如何避免频繁fullGC?</h4></li>
+</ol>
+<ul>
+<li><p>出现fullgc的原因：</p>
+<p>1.年轻代空间不足</p>
+<p>2.per Gen（永久代）空间满</p>
+<p>3.CMS GC时出现promotion failed和concurrent mode failure</p>
+<p>4.统计得到的Minor GC晋升到旧生代的平均大小大于旧生代的剩余空间等</p>
+</li>
+<li><p>解决：</p>
+<ul>
+<li>增大survive区大小</li>
+<li>降低大对象的生命周期</li>
+<li>避免产生过多可以避免的大对象</li>
+<li><strong>增大永久代空间</strong></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/17/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -350,7 +899,7 @@
         
           
             <hr>
-<h2 id="tags-多线程"><a href="#tags-多线程" class="headerlink" title="tags:多线程"></a>tags:多线程</h2><h2 id="多线程与并发编程学习笔记"><a href="#多线程与并发编程学习笔记" class="headerlink" title="多线程与并发编程学习笔记"></a>多线程与并发编程学习笔记</h2><p><strong>1. 什么是JUC</strong>：java.util.concurrent 并发工具包；</p>
+<h2 id="tags-多线程"><a href="#tags-多线程" class="headerlink" title="tags:多线程"></a>tags:多线程</h2><h2 id="多线程与并发编程学习笔记01"><a href="#多线程与并发编程学习笔记01" class="headerlink" title="多线程与并发编程学习笔记01"></a>多线程与并发编程学习笔记01</h2><p><strong>1. 什么是JUC</strong>：java.util.concurrent 并发工具包；</p>
 <p><strong>2. 线程与进程</strong>：</p>
 <p><strong>进程</strong>：一段代码程序执行的过程；一个进程可包含多个线程；</p>
 <p>​        在 Java 本身启动时会创建若干个线程，除了 main 线程之外，还有Monitor Ctrl-Break，Signal Dispatcher，Finalizer，Reference Handler。</p>
@@ -1896,406 +2445,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/04/%E5%9F%BA%E4%BA%8ESpringBoot+Mybatis+Thymeleaf%E7%9A%84%E5%91%98%E5%B7%A5%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="田济荣">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="GeekOUC">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/08/04/%E5%9F%BA%E4%BA%8ESpringBoot+Mybatis+Thymeleaf%E7%9A%84%E5%91%98%E5%B7%A5%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" itemprop="url">基于SpringBoot+Mybatis+Thymeleaf的员工信息管理系统</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-04T00:18:13+08:00">
-                2020-08-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE/" itemprop="url" rel="index">
-                    <span itemprop="name">项目</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="基于SpringBoot-Mybatis-Thymeleaf的员工信息管理系统"><a href="#基于SpringBoot-Mybatis-Thymeleaf的员工信息管理系统" class="headerlink" title="基于SpringBoot+Mybatis+Thymeleaf的员工信息管理系统"></a>基于SpringBoot+Mybatis+Thymeleaf的员工信息管理系统</h2><p>本项目是一个采用SpringBoot框架开发的轻量级后台管理系统，其主要逻辑与模块：</p>
-<ul>
-<li>系统模块架构：实体类包括用户信息类、部门信息类；Dao层使用xml文件编写SQL语句；Service层封装增删改查的方法；Controller层处理外部请求并返回页面。</li>
-<li>登录验证和授权管理：使用SpringSecurity框架实现高效的拦截器功能，控制普通账户和管理员账户的页面访问权限和数据修改权限。</li>
-<li>数据库连接池：配置Druid数据源，实时监控SQL执行信息。</li>
-</ul>
-<h3 id="涉及技术："><a href="#涉及技术：" class="headerlink" title="涉及技术："></a>涉及技术：</h3><ul>
-<li><p>使用maven进行项目构建与管理</p>
-</li>
-<li><p>使用Springboot+Mybatis快速搭建系统</p>
-</li>
-<li><p>使用MySQL数据库管理信息</p>
-</li>
-<li><p>使用Thymeleaf模板引擎实现页面静态化</p>
-</li>
-<li><p>使用SpringSecurity实现认证与授权服务</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/10/%E7%94%A8%E4%BA%8E%E5%9B%BE%E5%83%8F%E5%8E%BB%E5%99%AA%E7%9A%84%E5%8F%8CCNN%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E8%AE%AD%E7%BB%83/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="田济荣">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="GeekOUC">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/07/10/%E7%94%A8%E4%BA%8E%E5%9B%BE%E5%83%8F%E5%8E%BB%E5%99%AA%E7%9A%84%E5%8F%8CCNN%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E8%AE%AD%E7%BB%83/" itemprop="url">用于图像去噪的双CNN神经网络的设计与训练</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-10T13:51:07+08:00">
-                2020-07-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index">
-                    <span itemprop="name">论文</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="用于图像去噪的双CNN神经网络的设计与训练"><a href="#用于图像去噪的双CNN神经网络的设计与训练" class="headerlink" title="用于图像去噪的双CNN神经网络的设计与训练"></a>用于图像去噪的双CNN神经网络的设计与训练</h2><h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>​    用于图像去噪的深卷积神经网络(CNNs)近年来引起了越来越多的研究兴趣。然而，普通网络不能恢复复杂任务的精细细节，例如真实的噪声图像。在本文中，我们提出了一种双重去噪网络(DudeNet)来恢复干净的图像。具体地，DudeNet由四个模块组成：特征提取块、增强块、压缩块和重构块。特征提取模块采用稀疏机制，通过两个子网络分别提取全局特征和局部特征。增强块收集并融合全局和局部特征，为后一种网络提供补充信息。压缩块细化提取的信息并压缩网络。最后，利用重建块重建去噪后的图像。DudeNet具有以下优点：</p>
-<p>(1)具有解析机制的双重网络可以提取互补特征，增强去噪器的泛化能力。</p>
-<p>(2)融合全局特征和局部特征可以提取显著特征，恢复复杂噪声图像的精细细节。</p>
-<p>(3)采用小尺寸滤波器来降低去噪器的复杂度。大量的实验证明了DudeNet比现有最先进的去噪方法的优越性。</p>
-<h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><p>​    图像去噪是低级计算机视觉领域的一个长期存在的问题[1，2]。一般而言，它可用于通过退化模型y=x+v恢复高质量图像(也被视为潜在的干净图像)x，其中y表示受污染(有噪声)图像，v是标准差为σ的加性高斯白噪声。在贝叶斯推理观点中，先验知识对图像去噪有重要影响[3]。例如，加权核范数最小化(WNNM)[4]利用奇异值来导出不同的权重作为解。然后，小波NNM处理基于非局部自相似性的图像去噪。块匹配和3-D滤波(BM3D)方法[5]结合了3D数据和稀疏性，优先处理图像去噪问题。同时使用信号处理技术和现有技术有利于图像处理应用[6]。为了提高去噪的效率，开发了字典学习技术来抑制噪声[7]。</p>
-<p>​    虽然基于先验的方法可以获得很好的去噪效果，但它们面临着参数手动设置和复杂的优化算法的挑战。针对这些问题，提出了多种判别学习方法来训练图像先验模型。例如，施密特等人提出了收缩场级联(CSF)模型[8]，利用展开的半二次优化算法进行图像恢复。Chen等人设计了可训练非线性反应扩散(TNRD)方法[9]来训练基于梯度下降推理的专家领域图像先验的去噪模型。虽然这些方法对图像去噪效果较好，但它们的应用受到所用先验的限制。此外，它们需要几个手动调整的参数才能获得最佳参数[10]。另外，上述方法只适用于一定的噪声水平，对盲去噪效果不佳。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image001.png)</p>
-<p>​    最近提出的CNN在很大程度上改进了图像去噪[11]。张等人提出了去噪卷积神经网络(DnCNN)[10]，它使用残差学习(RL)和批处理重整化(BN)[12]来去除噪声。具体地说，DnCNN首先应用单个模型来处理多个应用，例如，图像去噪、超分辨率和去块。这些多用途方法的有效性取决于所使用的核心结构。如果它们的核心结构不能很好地恢复动态或复杂任务的清晰图像细节，例如真实世界中损坏的图像和盲噪声，这些方法可能不能很好地执行[13]。为了解决这些问题，我们提出了一种计算量较小的双重去噪网络(DudeNet)，如图1所示。DudeNet由四个部分组成：特征提取块(FEB)、增强块(EB)、压缩块(CB)和重构块(RB)。具体地说，具有稀疏机制的FEB首先从给定的噪声图像中提取全局和区域特征。然后，为了逐步增强残差信息，EB通过两阶段机制融合全局特征和局部特征，为后一网络提供补充信息。然后，对CB进行叠加，提取得到的残差图像，减少局部参数的个数。最后，RB从残差和噪声图像中重建出潜在的干净图像。</p>
-<p><strong>拟议的DudeNet有几个优点：</strong></p>
-<p>(1)采用稀疏机制的双网络可以提取不同的特征，提高去噪器处理复杂任务(如真实世界中的图像和盲噪声)的泛化能力。提出的双网络具有稀疏机制，可以提取不同的特征，提高去噪器处理复杂任务的能力。</p>
-<p>(2)融合全局特征和局部特征可以获得显著的特征来恢复细节，可以合并双网络来处理复杂的去噪任务。</p>
-<p>(3)采用小尺寸滤波器来降低去噪器的复杂度。</p>
-<p>本文的其余部分组织如下:第二节综述了与我们提出的方法相关的几项工作。第三节详细阐述了拟议的DudeNet。第四节给出了所提出的DudeNet的综合实验结果，并进行了深入的分析。第五节得出结论。</p>
-<h3 id="2-相关工作："><a href="#2-相关工作：" class="headerlink" title="2 相关工作："></a>2 相关工作：</h3><p><strong>A.  深度CNN在图像去噪中的应用：</strong></p>
-<p>由于深层CNN的表达能力强、速度快，许多基于CNN的去噪方法已经成为低层视觉任务的热门方法[14]。张某等人提出了一种快速灵活的去噪网络以及基于噪声级图和含噪图像的FFDNet盲去噪方法[15]。为了更好地权衡效率和专门任务之间的关系，张等人提出了一种新的解决方案。提出了一种判别学习和基于模型优化相结合的图像复原CNN(IRCNN)[16]方法来预测干净的图像。为了便于培训，刘等人提出了一种深度多层小波CNN(MWCNN)[17]，它融合了Unet结构[18]和小波来提取频率特征，用于图像恢复任务。Tai等人的研究成果提出了一种由递归和门单元组成的深层次持久存储网络(又称MemNet)[19]来恢复高质量的图像，以挖掘更准确的信息。毛等人开发了一种更深的30层残差编解码器网络(RED30)[20]，由大量卷积和随后的转置卷积组成，以获得更清晰的图像。虽然有些方法在图像恢复方面取得了很好的效果，但它们都依赖于主体结构。当主要结构的细节恢复良好时，其性能是完美的。然而，对于多变或复杂的任务，如盲噪声和真实噪声图像，主要结构不能很好地恢复，这些方法效果不佳[13]。为了解决这个问题，潘等人[13]提出用双卷积神经网络提取互补特征来增强低水平视觉任务中恢复的细节。受此启发，我们使用双CNN来去除噪声，特别是变化的噪声图像(即现实应用中的受损图像和盲噪声)。</p>
-<p><strong>B.  用于图像去噪的基于深度CNN的模块：</strong></p>
-<p>由于端到端的连接架构，具有灵活插件的CNN被广泛用于许多任务，即图像[21]、视频[22]和文本应用[23]。具体地说，CNN中的模块或块用于低级计算机视觉，特别是图像超分辨率[24，25]和去噪[26]。基于模块的深度神经网络主要分为两类：提高性能、加快速度。对于第一个方面，学者们主要是融合获得的多个特征来增强CNN的表达能力。例如，深度提升框架(DBF)[27]使用特征提取、特征集成和重构块来抑制噪声。具体地说，特征集成块使用多个级联操作来融合特征。级联残差网络(CARN)[28]通过重复级联残差块实现图像超分辨率的集成特征。残差密集网络(RDN)[29]通过递归使用残差块来重复融合全局和局部特征，以提高图像的超分辨率性能。</p>
-<p>对于第二个方面，压缩网络是提高网络速度的常用方法。例如，一种轻量级特征融合网络(LFFN)[30]被用来减小卷积核大小和压缩训练模型。自适应加权超分辨网络(AWSRN)[31]利用自适应加权多尺度(AWMS)模块对小尺度卷积进行裁剪。信息提取网络(IDN)[32]使用三个块(即，信息提取块、信息提取块、构造块)来提取所获得的特征。具体地说，信息精馏模块使用1×1的分组卷积和卷积核来降低网络参数和计算量。这些方法在图像超分辨率或去噪性能或效率上都取得了较好的效果。因此，本文提出了基于块的DudeNet来缩小去噪效率和去噪性能之间的差异，以达到去噪的目的。DudeNet的详细信息将在第三节中显示。</p>
-<h3 id="3-所提方法"><a href="#3-所提方法" class="headerlink" title="3 所提方法:"></a>3 所提方法:</h3><p><strong>A 网络结构：</strong></p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image002.png)</p>
-<p>​    如图1所示，所提出的DudeNet由四个部分组成：特征提取块(FEB)、增强块(EB)、压缩块(CB)和重构块(RB)。FEB采用稀疏机制，既能提取不同的特征，又能降低网络的深度。EB通过将特征融合在两个子网络中来增强提取的特征，这对于被未知类型的噪声污染的图像特别有用，例如许多真实的被破坏的图像和盲噪声。CB对网络进行压缩，以降低计算成本。最后用RB重建干净的图像。</p>
-<p>​    具体地，FEB包含两个子网络，分别是FEB-Net1和FEBnet2，其中FEBnet1包括稀疏机制。我们将DudeNet的输入表示为Y，输出表示为X。利用这两个16层子网络从输入的含噪图像中提取两个不同的特征映射。FEB CAN的过程表示为：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image003.png)</p>
-<p>​    其中，Fi(Y)和FEBi分别表示第i个网络的特征提取函数和提取的特征。</p>
-<p>​    EB包含两个部分：增强块1(EB1)和增强块2(EB2)。FEB的输出被送入EB1，EB1通过链式方式融合来自FEB的上述两个子网的两个不同的特征：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image004.png)</p>
-<p>​    其中E表示EB1和EB2的功能，OE1表示EB1的输出。</p>
-<p>​    CB由三个压缩块(CB1)、压缩块2(CB2)和压缩块3(CB3)组成。请注意，CB1集成在FEBnet1中。放置在EB1和EB2之间的CB2用于细化提取的特征，如下所述：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image005.png)</p>
-<p>​    其中C1分别表示CB1、CB2和CB3的功能。OCB2是CB2的输出。</p>
-<p>在CB2之后，EB2用于获取如下公式的补充信息：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image006.png)</p>
-<p>​    其中OE2代表EB2的输出。</p>
-<p>​    然后，CB3进一步对EB2的输出进行如下处理：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image007.png)</p>
-<p>​    其中OCB3表示CB3的输出。</p>
-<p>​    最后，利用RB构造潜在的干净版本。使用以下残差运算从所获得的残差特征OCB3中提取输入Y：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image008.png)</p>
-<p>​    其中‘−’表示残差操作。</p>
-<p> <strong>B．特征提取块(FEB)：</strong></p>
-<p>​    FEB用于提取可靠的视觉特征。FEB由第一网络和第二网络组成。具体地说，第一个网络可以分为三个模块：Conv+BN+RELU、扩展Conv+BN+RELU和Conv。具体地说，在所提出的稀疏机制中，扩张卷积+BN+RELU依次执行扩张卷积[33]、批归一化[12]和校正线性单元[34]。Conv+BN+RELU在第1、3、4、6、7、8、10、11、13、14、15层起作用，扩张型Conv+BN+REU设计在第2、5、9、12层，Conv形成第16层。所有卷积层的滤波器大小均设置为3×3，2-16层的大小为64×3×3×64。第1层的大小为c×3×3×64，其中c是通道号，其中c=1和c=3分别表示输入的噪声图像是灰度图像和彩色图像。此外，层2-12包括FEBnet1中的稀疏机制。文献[35]表明，稀疏性可以放大少量大能点的效应。基于此，我们在FEB1的FEBnet1中提出了一种稀疏机制。具体地说，第2、5、9和12层通过一系列膨胀因子为2的膨胀卷积可以捕捉到丰富的上下文信息，即大能量点。FEBnet1的其他层进行普通卷积提取的特征比膨胀卷积层提取的特征相对较少，即小能量点。大能点和低能点的联合利用利用了稀疏性。因此，FEBnet1中的第2-12层称为稀疏机制。因此，FEBnet1的功能可以表示如下：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image009.png)</p>
-<p>​    其中CBR1、S、CBR3和C分别代表Conv+BN+REU的功能，设计了稀疏机制，设计了3个Conv+BN+REU和1个3×3卷积。这被转换为F1(Y)=feb1通过(1)。</p>
-<p>​    第二子网FEBnet2包含两个不同的模块：Conv+RELU和CB1。具体地说，Conv+REU指的是滤波器大小为3×3的卷积，然后是RELU。CB1通过1×1卷积层实现。第2-15层的尺寸均为64×3×3×64。第1层和第16层的尺寸分别设计为c×3×3×64和64×1×1×64，其中c为通道数。FEBnet2的程序可以制定如下：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image010.png)</p>
-<p>​    其中CR15表示十五个Conv+REU的功能。</p>
-<p><strong>C.  增强模块(EB)：</strong></p>
-<p>​    EB使用两个部分来增强所设计网络的学习功能，适用于实际应用中的未知类型的噪声，如受损图像和盲噪声。拟议的EB在FEB和CB3之间工作，包括EB1和EB2两个部分。具体地说，EB1在FEB和CB2之间起作用。EB1由三部分组成：融合部分、BN部分和RELU部分。首先，融合部分通过串联操作集成来自不同网络(第一和第二网络)的两种不同类型的特征[36]。众所周知，在第一个网络中通过膨胀卷积获得的特征与在第二个网络中通过膨胀卷积获得的特征是不同的，这导致在EB1中获得的特征的分布有很大的不同。因此，使用BN来消除不良影响。最后，利用RELU将得到的线性特征转换为非线性特征。这一过程可以制定如下：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image011.png)</p>
-<p>​    其中B是BN的函数，R表示激活函数RELU。EB2，介于CB2和CB3之间，将DudeNet的输入和CB2的输出连接起来，产生重要信息。这一过程可以用以下表达式表示：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image012.png)</p>
-<p>​    其中OE2扮演CB3的角色。</p>
-<p><strong>D.  压缩块(Cb)和重建块(Rb)：</strong></p>
-<p>​    利用CB对提取出的特征进行更准确的提取，降低了计算量。它由CB1、CB2和CB3三部分组成。具体地说，尺寸为64×1×1×64的CB1被放置在Feb的FEBnet2的第16层中，尺寸为128×1×1×c的CB2被放置在EB1和EB2之间，尺寸为2c×1×1×c的CB3被放置在EB2和Rb之间，其中c是通道尺寸。此外，CB1、CB2和CB3由1×1卷积实现，这可以降低它们的维数并提高DudeNet的效率，因为已知1×1的卷积可以压缩数据[32]。上面的插图显示了CB1和CB2。因此，CB3着重显示如下。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image013.png)</p>
-<p>​    其中，OCB3表示如图1所示的残差图像(视为噪声映射)。RB使用(6)来构造预测的干净图像。</p>
-<p><strong>E．损失函数：</strong></p>
-<p>​    我们使用下面的均方误差(MSE)[37]作为目标函数(也称为损失函数)来测量预测残差图像R(Yj)和对应的地面真实图像Yj−Xj之间的差异，其中Xj表示第j个清洁图像：</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image014.png)</p>
-<p>​    其中θ表示DudeNet中训练的模型的参数。{(yj，xj)}nj=1表示N个噪声-清洁图像对。损失函数用于通过ADAM优化器[38]恢复潜在清洁图像。</p>
-<h3 id="4-实验："><a href="#4-实验：" class="headerlink" title="4 实验："></a>4 实验：</h3><p><strong>A.  训练数据集：</strong></p>
-<p>​    我们的训练数据分为两部分：合成图像和真实噪声图像。大小为180×180的合成噪声图像包括灰度图像和彩色图像。为了创建该训练集，我们为合成噪声数据选择了相同的400幅图像[6]。我们使用以下两种方法[39]来增加合成噪声图像的训练数据。(1)采用降尺度因子为0.7、0.8、0.9和1的双三次插值对训练数据集进行扩展。(2)采用以下八种操作来增加训练样本的多样性：无操作(即，原始图像)、90◦逆时针旋转、180◦逆时针旋转、2 70◦逆时针旋转、水平翻转、90◦逆时针旋转然后水平翻转、180◦逆时针旋转然后水平翻转、270◦逆时针旋转然后水平翻转。为了使训练后的模型更稳健，每次操作只能应用于一幅图像，并且每幅图像在一个时期内使用四次。</p>
-<p>​    对于真实的噪声图像，我们使用大小为512×512的100个JPEG压缩图像[40]作为训练数据，这些图像是使用五种不同的数字设备收集的：佳能80D、尼康D800、佳能600D、索尼A7 II和佳能5D Mark II，它们带有不同参数的传感器(即800、1,600、3,200、6,400、12,800和25,600)。由于这些真实的噪声图像被压缩，对图像去噪提出了更大的挑战。</p>
-<p><strong>B．测试集：</strong></p>
-<p>​    所提出的DudeNet在五个公共基准数据集上进行了测试：BSD68[41]、Set12[7]、CBSD68[41]、Kodak24[42]和CC[43]。在这些数据集中，BSD68和Set12分别包含68个和12个不同场景的灰度图像。两个数据集中每个图像的大小分别为321×481和256×256。CBSD68和Kodak24分别包含68色和24色自然图像。CBSD68和Kodak24的图像大小分别为321×481和500×500。CC包含15个损坏的512×512真实世界，部分如图2所示，由3个数字设备捕获：佳能5D Mark III、尼康D600和尼康D800，具有三个ISO值(例如1,600、3,200和6,400)。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image015.png)</p>
-<p><strong>C．实施细节：</strong></p>
-<p>​    DudeNet的深度为18。为了加快训练速度，按照文献[44]的建议，将训练样本裁剪成大小为41×41的块来训练去噪模型。在训练阶段，初始参数设置如下：学习率为10−3，ε=10−8，批次大小为。12 8，β1=0.9，β2=0.999[45]。培训的数量：对于真实和合成噪声图像的去噪模型，Epochs为70，其中学习率设置为10−3到10−5。</p>
-<p><strong>D.网络分析：</strong></p>
-<p>​    1)感受野的设计：与整个图像相比，将图像分成多个块可以降低计算成本[44]。具体地说，补丁的大小通常略大于所设计网络的接收场大小。在DudeNet中，第一和第二网络的感受野大小分别为41×41和32×32，遵循[33]。需要注意的是，补丁的大小应该大于DudeNet的接受场大小，否则，补丁的大小不能满足网络填充的要求，这将降低去噪性能。考虑到计算量和去噪性能之间的权衡，我们将两个子网的平均接收场大小取为FEB：(41+32)/2=36.5≈37。因此，DudeNet的总体感受野大小为39×39，斑块大小选择为41×41。</p>
-<p>​    <strong>2)FEB的设计、分析和有效性：</strong>为了提取准确的特征，我们采用了特征融合的方法来增强DudeNet的表示能力。也就是说，FEB包括第一和第二网络。对于第一种网络，所提出的稀疏机制是一个重要的组成部分，具有以下优点：</p>
-<p>​    首先，它可以更好地恢复潜像的细节。其次，它可能导致浅层次的结构，这有利于解决长期依赖问题。第三，浅DudeNet具有较低的计算复杂度。</p>
-<p>具体实现见第三节C部分。具体而言，该机制用具有较大膨胀因子的膨胀卷积来模拟大能量点，而用具有小膨胀因子的卷积来表示小能量点以实现稀疏性。然而，选择大的能源点是至关重要的。我们分别从稀疏性特征和网络设计两个方面解释了原因。</p>
-<p>​    对于稀疏性，我们知道大的能量点是不规则分布的[47]。在此基础上，提出了寻找大能源点的具体要求。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image016.png)</p>
-<p>​    大能量点在CNN中不是连续的、等距的，这有利于提高去噪性能。如果CNN中的大能量点是连续的，这将导致信息丢失。具体地说，CNN的记忆能力是有限的[48]。CNN的后一层由于不能完全理解前一层的信息，需要学习更大范围的新内容。证明了“连续高能点CB2、CB3网络”的性能比表I所示的“具有稀疏机制的第一网络CB2和CB3(FS)”的性能要差。具体地说，“连续高能点网络CB2、CB3”是CB2、CB3和第一个具有2-5层高能点(膨胀卷积)的网络的组合。此外，还注意到局部地区的网络差异越大，其性能越好[29]。因此，我们在CNN中不会选择等距的大点。这一点通过表I中的“FEBnet1的层2、层5、层8和层11的膨胀因子为2的DudeNet”和“DudeNet”进行了验证。</p>
-<p>​    <strong>3）大能量点不多，能保证去噪效率：</strong>举个例子，Elep在处理噪声图像时比FS消耗更多的运行时间，如表II所示。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image017.png)</p>
-<p>​    对于网络结构来说，大能量点是连续的、等距离的、多个的，这会导致效率低、去噪性能差。举个例子，我们假设第一个网络中的每一层都使用膨胀卷积。这需要在第一个网络的每一层进行填充操作，效率较低，如表II所示的“Elep”和“FS”。此外，当感受野的大小大于输入图像的块大小时，特征映射需要零填充，这会降低去噪性能。从表I中比较ELEP和FS的性能可以看出这一点，因此，在图像去噪中放弃了这一思想。此外，稀疏机制在效率和性能上具有竞争力。具体地说，FS的感受场大小为43×43，与核大小为3×3的21层相比，其去噪效果较好，但只有18层，降低了网络深度，提高了去噪效率。</p>
-<p>在去噪性能方面，我们通过对表I中的“DudeNet”和“RB、EB、CB和FEB的组合(没有稀疏机制)”和“没有CB2和EB2的DudeNet”的性能进行比较，证明了稀疏机制的有效性。综上所述，FEB的FEBnet1中提出的稀疏机制是有效的。此外，FEBnet2对FEBnet1进行了合并以提高去噪性能，这将在EB中详细说明。</p>
-<p>​    <strong>4）EB的设计、分析和有效性：</strong>值得注意的是，不同的网络可以从多个角度提供互补的信息[48]。而且CNN的地方架构差异更大，效果更好[29]。基于此，我们提出了一种增强学习能力的EB。具体地说，EB包括EB1和EB2两个部分。EB1集合了两个子网络，在深度相同的情况下提高了网络的表达能力。可以看出，“RB、EB1、CB和FEB无稀疏机制和BN的组合”比“FWS”和“第二个有CB2和CB3的网络”获得了更高的峰值信噪比(PSNR)。“有CB2的DudeNet和没有EB2的DudeNet”优于“FS”和“有CB2的第二个网络和CB3”。证明了FEB和EB1相结合对图像去噪是非常有效的。具体地说，两个子网络只使用一种稀疏机制来扩大FEB的差异，这在表I中是有效的，例如“具有两个稀疏机制的DudeNet”和“DudeNet”。证明了具有稀疏机制的双网络可以提取不同的特征，提高了去噪器的泛化能力。</p>
-<p>​    EB2融合了获得的局部特征和原始图像信息，也可以为第一阶段和以后的网络提供补充信息。通过比较“无稀疏机制的Rb、EB1、Cb和FEB的组合”和“无稀疏机制的Rb、Eb、Cb和FEB的组合”、“DudeNet”和“DudeNet有Cb2和无EB2的DudeNet”来验证这一点。同时，BN并入FEB和EB对DudeNet有积极的影响，这反映在表I中。其原因有以下两点。首先，第一个网络中的膨胀卷积会导致所获得的特征分布不同。其次，从两个不同的网络中获取的特征不同，导致融合后的特征分布不同。这些都对图像去噪有很好的效果。因此，我们选择BN进入第一个网络，并在FEB份选择EB1来分别解决这些问题。此外，值得注意的是，EB1和EB2融合了局部特征和全局特征来增强表达能力，非常适合于未知的受污染图像，如真实世界中的噪声图像和盲去噪。</p>
-<p>​    <strong>5)CB的设计、分析和有效性：</strong>为了提高效率，CB通过1×1卷积的方式对冗余特征信息进行打折。由于CB1被嵌入到FEB的第二个网络中，CB3可以将噪声特征转换为噪声映射(也称为噪声图像)。因此，我们只证明了CB2算法对图像去噪的有效性。也就是说，“有CB2的DudeNet和没有EB2的DudeNet”获得了比表I所示的“没有CB2和EB2的DudeNet”更高的PSRN。此外，如表I-III所示，有CB的DudeNet(也称为DudeNet)在性能、运行时间和计算成本方面与“每层内核大小为3×3的DudeNet”具有很强的竞争力。具体地说，为了使去噪结果更具说服力，DudeNet深度参考了DnCNN。然而，由于EB2和CB3的存在，DudeNet的深度在DnCNN之上有一层。另外，我们的网络比DnCNN更广。考虑到这些因素，我们选择18层的“两个DnCNN”作为比较方法，从峰值信噪比、运行时间和复杂度三个方面对去噪性能进行测试，其中“两个DnCNN”是由两个相同的DnCNN串联而成的。</p>
-<p>​    在去噪效果上，‘DudeNet’优于表I所示的‘DnCNN’和‘Two DnCNN’。从运行时可以看出，对于有噪声的图像，‘DudeNet’接近于‘Two DnCNN’(即256×256、512×512和1024×1024)。从复杂度来看，‘DudeNet’比‘Two DnCNN’具有更少的参数和Gflops。就去噪网络的复杂度而言，“DudeNet”优于“RED30”和“每层核大小为3×3的DudeNet”。这表明该器件结构浅，滤波器尺寸小，具有较小的计算量和存储量。因此，我们的DudeNet对图像去噪是有效和高效的。</p>
-<p><strong>E.  与最先进的去噪方法的比较：</strong></p>
-<p>​    本文对灰度和彩色合成噪声图像、盲去噪图像和真实噪声图像四个应用进行了对比实验，并对每幅图像的运行时间进行了比较。对于这些实验，我们选择了最先进的方法，包括BM3D[5]，WNNM[4]，期望补丁对数似然(EPLL)[44]，多层感知器(MLP)[52]，CSF[8]，TNRD[9]，DnCNN[10]，DnCNN用于盲去噪(DnCNN-B)[10]，IRCNN[16]，FFDNet[15]，目标图像去噪(TID)[53。具体地说，我们使用PSNR[55，56]和运行时间作为比较去噪方法的性能指标：PSNR=10×log10((Max)2)，其中Max和MSE MSE分别是给定的干净图像和预测的干净图像之间的最大像素值和均方误差。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image018.png)</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image019.png)</p>
-<p>​    灰度和彩色合成噪声图像：表IV列出了基准数据集BSD68上的灰度合成噪声图像的平均PSNR。可以看出，DudeNet的性能优于几种最先进的去噪器，即DnCNN和FFDNet。此外，带盲去噪的DudeNet(DudeNet-B)也获得了较好的性能。例如，当σ=50时，DudeNet-B比DNCNN有0.02dB的改善。图3显示了来自BSD68上的BM3D、IRCNN、FFDNet、DudeNet和DudeNet-B的可视图像。表V显示了DudeNet对每一类灰度合成噪声图像的良好去噪性能，其中对于不同的噪声级别(即15、25、50)其去噪效果最佳。图4显示了最终图像。可以看出，DudeNet产生的图像比IRCNN清晰得多。从表VI看，在不同的噪声水平(即15、25、35、50、75、[0，55])下，DudeNet和DudeNet-B与CBSD68和Kodak24的其他常用彩色合成噪声图像方法相比具有很强的竞争力。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image020.png)</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image021.png)</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image022.png)</p>
-<p><strong>2)盲去噪：</strong>DudeNet–盲去噪模型。B从0训练到55 3)真实噪声图像：表VII显示了真实噪声图像的去噪性能。</p>
-<p>​    DudeNet取得了很好的效果，比DnCNN提高了1.86dB。综上所述，我们的去噪模型适用于复杂的噪声任务，如彩色合成噪声图像、盲降噪和真实噪声图像。如表IV-VI所示，我们可以看到DudeNet-B在灰度和彩色图像去噪方面与FFDNet和IRCNN相比具有很强的竞争力。这证明了我们的模型对盲去噪具有很好的鲁棒性。</p>
-<p>![img](Users/tianjirong/Library/Group Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image023.png)</p>
-<p>​    表八显示了9种方法在每个不同大小的图像上的运行时间，其中DudeNet比最先进的去噪器(即RED30和MemMet)更具竞争力。表IV-VIII说明了不同方法的去噪性能(即PSNR和运行时间)，其中红线和蓝线分别表示图像去噪的最佳和次佳结果。根据前面第四节D节的分析和第四节E节的实验验证，我们可以将本文的优点提炼如下：</p>
-<p>首先，具有稀疏机制的双网络可以提取不同的特征，以增强去噪器处理复杂任务(如真实噪声图像和盲噪声)的广义能力。</p>
-<p>其次，将全局特征和局部特征相结合，可以获得显著的特征来恢复细微的细节，从而可以合并双网络来解决复杂的任务。</p>
-<p>最后，采用较小的滤波器尺寸来降低去噪器的复杂度。</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>​    本文提出了一种新的DudeNet图像去噪方法。DudeNet使用双重网络来提取不同的特征，以增强学习特征的表示能力以进行去噪。DudeNet的稀疏机制可以很好地在去噪性能和处理速度之间进行权衡，通过提取全局和局部特征来融合它们，获得显著的特征，从而恢复复杂噪声图像的精细细节。我们还提出使用压缩块来减少冗余信息，从而降低计算成本和内存消耗。大量实验表明，DudeNet具有较高的视觉质量和计算效率。在未来，我们打算扩展DudeNet来处理多个低级视觉任务，包括图像超分辨率和去模糊。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2346,7 +2495,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

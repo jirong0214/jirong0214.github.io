@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="tags:多线程多线程与并发编程学习笔记0213. 阻塞队列  （多线程并发和线程池的时候经常使用）BlockQueue接口：指定队列大小,若队列满则阻塞等待；取元素时若为空则阻塞等待 Queue接口的类图  重要的实现类： -&gt; ArrayBlockingQueue  -&gt; LinkedBlockingQueue -&gt; SynchronousQueue【重点】 4组API：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程与并发编程学习笔记02">
+<meta property="og:url" content="http://yoursite.com/2020/08/24/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B002/index.html">
+<meta property="og:site_name" content="GeekOUC">
+<meta property="og:description" content="tags:多线程多线程与并发编程学习笔记0213. 阻塞队列  （多线程并发和线程池的时候经常使用）BlockQueue接口：指定队列大小,若队列满则阻塞等待；取元素时若为空则阻塞等待 Queue接口的类图  重要的实现类： -&gt; ArrayBlockingQueue  -&gt; LinkedBlockingQueue -&gt; SynchronousQueue【重点】 4组API：">
+<meta property="og:image" content="https://i.loli.net/2020/08/24/o12Yl6mwFZOHikx.png">
+<meta property="og:image" content="https://i.loli.net/2020/08/24/fxcMDjmCkoZVbnQ.png">
+<meta property="og:image" content="https://i.loli.net/2020/08/24/RmMiufY5bTerFJH.png">
+<meta property="og:image" content="https://i.loli.net/2020/08/24/QrhpPVwEMlvR3BN.png">
+<meta property="og:image" content="https://i.loli.net/2020/08/25/79Nt4ghOSbJWfHM.png">
+<meta property="og:image" content="https://i.loli.net/2020/08/25/r5Bw8gemhjHISYU.png">
+<meta property="article:published_time" content="2020-08-24T01:04:00.687Z">
+<meta property="article:modified_time" content="2020-08-25T13:08:35.668Z">
+<meta property="article:author" content="田济荣">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/08/24/o12Yl6mwFZOHikx.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/08/24/多线程与并发编程学习笔记02/"/>
+
+
+
+
+
+  <title>多线程与并发编程学习笔记02 | GeekOUC</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?345da8a17ad1f3825bc080f35df3590b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">GeekOUC</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Hello,world.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-简历">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            简历
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-schedule">
+          <a href="/schedule/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br />
+            
+            日程表
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/24/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B002/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="田济荣">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="GeekOUC">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">多线程与并发编程学习笔记02</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-24T09:04:00+08:00">
+                2020-08-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h2 id="tags-多线程"><a href="#tags-多线程" class="headerlink" title="tags:多线程"></a>tags:多线程</h2><h2 id="多线程与并发编程学习笔记02"><a href="#多线程与并发编程学习笔记02" class="headerlink" title="多线程与并发编程学习笔记02"></a>多线程与并发编程学习笔记02</h2><h3 id="13-阻塞队列-（多线程并发和线程池的时候经常使用）"><a href="#13-阻塞队列-（多线程并发和线程池的时候经常使用）" class="headerlink" title="13. 阻塞队列  （多线程并发和线程池的时候经常使用）"></a>13. 阻塞队列  （多线程并发和线程池的时候经常使用）</h3><p>BlockQueue接口：<strong>指定队列大小</strong>,若队列满则阻塞等待；取元素时若为空则阻塞等待</p>
+<p>Queue接口的类图</p>
+<p><img src="https://i.loli.net/2020/08/24/o12Yl6mwFZOHikx.png" alt="image-20200824092340874"></p>
+<p><strong>重要的实现类：</strong></p>
+<p>-&gt; <strong>ArrayBlockingQueue</strong> </p>
+<p>-&gt; <strong>LinkedBlockingQueue</strong></p>
+<p>-&gt; <strong>SynchronousQueue【重点】</strong></p>
+<p><strong>4组API：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法/API</th>
+<th>抛出异常</th>
+<th>返回值</th>
+<th>阻塞等待</th>
+<th>超时等待</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>添加元素</td>
+<td><strong>add()</strong></td>
+<td><strong>offer()</strong></td>
+<td><strong>put()</strong></td>
+<td><strong>offer(”a”,2,秒)</strong></td>
+</tr>
+<tr>
+<td>移除元素</td>
+<td><strong>remove()</strong></td>
+<td><strong>poll()</strong></td>
+<td><strong>take()</strong></td>
+<td><strong>poll(2,秒)</strong></td>
+</tr>
+<tr>
+<td>查看队列首</td>
+<td><strong>element()</strong></td>
+<td><strong>peek()</strong></td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p><strong>SynchronousQueue 同步队列：</strong>【进一个取一个】</p>
+<p><strong>SynchronousQueue没有容量，是无缓冲等待队列</strong>，是一个不存储元素的阻塞队列，会直接将任务交给消费者，必须等队列中的添加元素被消费后才能继续添加新的元素。</p>
+<p>拥有<strong>公平(FIFO)(TransferQueue)和非公平(LIFO)(TransferStack)策略</strong>，非公平策略会导致一些数据永远无法被消费的情况.</p>
+</li>
+</ul>
+<h3 id="14-线程池【重要】【3大方法-7大参数-4种拒绝】"><a href="#14-线程池【重要】【3大方法-7大参数-4种拒绝】" class="headerlink" title="14.线程池【重要】【3大方法/7大参数/4种拒绝】"></a>14.线程池【重要】【3大方法/7大参数/4种拒绝】</h3><p><strong>14.1 池化技术</strong>：线程池、数据库连接池、内存池、常量池…</p>
+<p><strong>线程池</strong>： 线程池就是首先创建一些线程，它们的集合称为线程池。使用线程池可以很好地提高性能，<strong>线程池在系统启动时即创建大量空闲的线程，程序将一个任务传给线程池，线程池就会启动一条线程来执行这个任务</strong>，执行结束以后，该线程并不会死亡，而是<strong>再次返回线程池中成为空闲状态，等待执行下一个任务</strong>。</p>
+<ul>
+<li>工作机制：<ul>
+<li>在线程池的编程模式下，任务提交给整个线程池，而不是直接提交给某个线程，<strong>线程池在拿到任务后，就在内部寻找是否有空闲的线程，如果有，则将任务交给某个空闲的线程</strong>。</li>
+<li>一个线程同时只能执行一个任务，但可以同时向一个线程池提交多个任务。</li>
+</ul>
+</li>
+<li>优点：<ul>
+<li>避免线程的频繁创建、销毁；提高<strong>效率和访问速度</strong>。</li>
+<li>实现<strong>线程复用</strong>、<strong>线程管理</strong>、控制<strong>最大并发</strong>数。</li>
+</ul>
+</li>
+</ul>
+<p><strong>14.2 创建线程池</strong>的方法：</p>
+<ol>
+<li>使用<strong>Executors工具类</strong>的3种构造方法：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService threadPool = Executors.newsingleThreadExecutor();  <span class="comment">//单个线程的线程池</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService threadPoo1 = Executors.newFixedThreadpool(<span class="number">5</span>); </span><br><span class="line"><span class="comment">//创建一个固定的线程池的大小</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService threadPool = Executors.newCachedThreadPool(); </span><br><span class="line"><span class="comment">//可伸缩的，遇强则强，遇弱则弱</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>使用<strong>ThreadPoolExecutor构造方法</strong>：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize, //核心线程池基本大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> maximumPoolSzie,//最大线程池大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">long</span> keepAliveTime,//非核心线程的超时时间</span></span></span><br><span class="line"><span class="function"><span class="params">                          TimeUnit unit,//超时的单位</span></span></span><br><span class="line"><span class="function"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue,//阻塞队列</span></span></span><br><span class="line"><span class="function"><span class="params">                          ThreadFactory threadFactory,//线程工厂：用于创建线程</span></span></span><br><span class="line"><span class="function"><span class="params">                          RejectedExecutionHandler handler//拒绝策略</span></span></span><br><span class="line"><span class="function"><span class="params">                         )</span></span></span><br></pre></td></tr></table></figure>
+
+<p>两种方法本质：都是调用了<strong>ThreadPoolExecutor (7个参数)</strong>【因此：<strong>线程池要使用此方法去创建</strong>，而不是用Executors下的方法】</p>
+<p><strong>14.3 线程池调用流程</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">使用构造方法后，返回一个线程池threadPool;</span><br><span class="line">threadPool.execute();<span class="comment">//使用线程池提交任务：</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2020/08/24/fxcMDjmCkoZVbnQ.png" alt="image-20200824130100218"></p>
+<ol>
+<li>如果当前线程池中的线程数目<strong>小于corePoolSize</strong>，则每来一个任务，就会<strong>创建一个线程</strong>去执行这个任务；</li>
+<li>如果当前线程池中的线程数目<strong>&gt;=corePoolSize</strong>，则每来一个任务，会尝试将<strong>该任务添加到任务缓存队列</strong>中，若添加成功，则该任务会<strong>等待空闲线程将其取出去执行</strong>；若<strong>添加失败</strong>（一般来说是任务缓存队列已满），则会尝试<strong>创建新的线程</strong>去执行这个任务；</li>
+<li>如果当前线程池中的<strong>线程数达到maximumPoolSize</strong>，则会采取任务<strong>拒绝策略</strong>进行处理；</li>
+<li>如果线程池中的线程数量<strong>大于 corePoolSize时</strong>，如果某线程空闲时间<strong>超过keepAliveTime，线程将被终止</strong>，直至线程池中的线程数目不大于corePoolSize；如果允许为核心池中的线程设置存活时间，那么核心池中的线程空闲时间超过keepAliveTime，线程也会被终止。</li>
+</ol>
+<p><strong>14.4 为什么使用阻塞队列</strong>？</p>
+<p><strong>阻塞队列主要是用于生产者-消费者模型的情况</strong>： 比如一个线程从一个空的阻塞队列中取元素，此时线程会被阻塞直到阻塞队列中有了元素。当队列中有元素后，被阻塞的线程会自动被唤醒(不需要我们编写代码去唤醒)。</p>
+<p>​        这样提供了极大的方便性。 如果使用非阻塞队列，它不会对当前线程产生阻塞,就必须额外地实现同步策略以及线程间唤醒策略，这个实现起来就非常麻烦。</p>
+<p><strong>拒绝策略</strong>：4种：</p>
+<table>
+<thead>
+<tr>
+<th>ThreadPoolExecutor.AbortPolicy</th>
+<th>丢弃任务，并抛出RejectedExecutionException异常【默认】</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ThreadPoolExecutor.AbortPolicy</strong></td>
+<td>丢弃任务，但是<strong>不抛出</strong>异常</td>
+</tr>
+<tr>
+<td><strong>ThreadPoolExecutor.DiscardOldestPolicy</strong></td>
+<td><strong>丢弃队列最老的</strong>任务，然后重新提交被拒绝的任务</td>
+</tr>
+<tr>
+<td><strong>ThreadPoolExecutor.CallerRunsPolicy</strong></td>
+<td>由<strong>调用线程（提交任务的线程）处理</strong>该任务</td>
+</tr>
+</tbody></table>
+<p><strong>14.5 最大线程数如何选择？</strong></p>
+<p>CPU密集型任务：maximumPoolSize = CPU核心数量；保持CPU效率最高</p>
+<p>IO 密集型任务 ：maximumPoolSize = CPU核心数量 * 2；</p>
+<h3 id="15-函数式接口【重要】："><a href="#15-函数式接口【重要】：" class="headerlink" title="15. 函数式接口【重要】："></a>15. 函数式接口【重要】：</h3><p>新时代的程序员要掌握的编程技术: lambda表达式、链式编程、 函数式接口、Stream流式计算</p>
+<p><code>函数式接口：只有一个方法的接口  @FunctionalInterface</code></p>
+<p><strong>15.1 4种函数式接口:</strong></p>
+<ul>
+<li><p><strong>Function</strong>【<strong>函数型</strong>】：一个输入，输出一个返回值；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Function&lt;String, String&gt; function = str -&gt; &#123;<span class="keyword">return</span> str;&#125;; <span class="comment">//lambda表达式简化</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Predicate【判断型】:</strong> 一个输入，输出一个boolean的返回值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Predicate&lt;String&gt; predicate = String::isEmpty;<span class="comment">//判断字符串是否为空的函数</span></span><br><span class="line">        System.out.println(predicate.test(<span class="string">"111"</span>));<span class="comment">//输出false;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Consumer【消费型</strong>】：一个输入，没返回值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Consumer&lt;String&gt; consumer = System.out::println;<span class="comment">//只是打印，没有返回值</span></span><br><span class="line">        consumer.accept(<span class="string">"12345"</span>);<span class="comment">//打印了”12345“</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Supplier 【供给型】</strong>：没有输入，只有返回值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Supplier&lt;Integer&gt; supplier = () -&gt; <span class="number">1024</span>;<span class="comment">//没有参数</span></span><br><span class="line">    System.out.println(supplier.get());<span class="comment">//提供1024</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p><strong>15.2 Stream 流式计算：</strong></p>
+<img src="https://i.loli.net/2020/08/24/RmMiufY5bTerFJH.png" alt="image-20200824150553674 " style="zoom:70%;" />
+
+
+
+<h3 id="16-ForkJoin"><a href="#16-ForkJoin" class="headerlink" title="16. ForkJoin"></a>16. ForkJoin</h3><p>Since : JDK1.7+</p>
+<p>原理：</p>
+<ol>
+<li><strong>分治</strong></li>
+</ol>
+<img src="https://i.loli.net/2020/08/24/QrhpPVwEMlvR3BN.png" alt="image-20200824152323862" style="zoom:67%;" />
+
+<ol start="2">
+<li><strong>工作窃取</strong>：工作窃取算法是指某个线程从其他队列里窃取任务来执行。</li>
+</ol>
+<img src="https://i.loli.net/2020/08/25/79Nt4ghOSbJWfHM.png" alt="image-20200825132323848" style="zoom:50%;" />
+
+<p>​    - 工作窃取算法的优点：<strong>充分利用线程</strong>进行<strong>并行</strong>计算，减少了线程间的竞争。</p>
+<pre><code>- 工作窃取算法的缺点：在某些情况下还是存在竞争，比如双端队列里只有一个任务时。并且该算法会消耗了更多的系统资源，比如**创建多个线程和多个双端队列**。</code></pre><p>ForkJoin类似于分治思想，只是分成小任务后使用的是多个线程并行执行小任务，从而加速计算。</p>
+<p><strong>但是还是Stream并行流式计算，速度最快</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> sum = LongStream.rangeClosed(<span class="number">0L</span>, <span class="number">10</span>_ <span class="number">0000</span>_ _00L).parallel().reduce( identity:<span class="number">0</span>,Long::sum);</span><br></pre></td></tr></table></figure>
+
+<p>只需1行代码，运算速度快100倍！</p>
+<h3 id="17-异步回调"><a href="#17-异步回调" class="headerlink" title="17. 异步回调"></a>17. 异步回调</h3><ul>
+<li><p><strong>是什么</strong>？在发起一个异步任务的同时指定一个函数，在<strong>异步任务完成时会自动的调用这个函数</strong>。</p>
+</li>
+<li><p><strong>为什么</strong>？需要<strong>获取异步任务的执行结果</strong>，但是<strong>又不应该让其阻塞</strong>（降低效率），即想要高效的获取任务的执行结果。</p>
+</li>
+<li><p><strong>怎么实现？</strong>使用Future接口下的<strong>CompletableFuture</strong>类；它的方法有：<strong>runAsync()</strong>;(无返回值)  <strong>supplyAsync()</strong>;有返回值；</p>
+</li>
+</ul>
+<h3 id="18-JMM"><a href="#18-JMM" class="headerlink" title="18. JMM"></a>18. JMM</h3><ul>
+<li><p><strong>JMM带来的问题</strong>:</p>
+<p>1) <strong>可见性问题</strong>：</p>
+<p>​        CPU中运行的线程从主存中拷贝共享对象obj到它的CPU缓存，把对象obj的count变量改为2。但这个<strong>变更对运行在右边CPU中的线程不可见</strong>，因为这个<strong>更改还没有flush到主存中</strong>。</p>
+<p>​        要解决共享对象可见性这个问题，我们可以使用 <strong>volatile</strong>关键字或者是<strong>加锁</strong>：</p>
+<img src="https://i.loli.net/2020/08/25/r5Bw8gemhjHISYU.png" alt="image-20200825145545276 " style="zoom:50%;" />
+
+
+
+</li>
+</ul>
+<p>​    2）<strong>竞争问题</strong>：</p>
+<p>​        线程A和线程B共享一个对象obj。假设线程A从主存读取Obj.count变量到自己的CPU缓存，同时，线程B也读取了Obj.count变量到它的CPU缓存，并且这两个线程都对Obj.count做了加1操作。此时，Obj.count加1操作被执行了两次，不过都在不同的CPU缓存中<strong>。如果这两个加1操作是串行执行的，那么Obj.count变量便会在原始值上加2，最终主存中的Obj.count的值会是3</strong>。然而下图中两个加1操作是<strong>并行的</strong>，不管是线程A还是线程B先flush计算结果到主存，<strong>最终主存中的Obj.count只会增加1次变成2</strong>，尽管一共有两次加1操作。 要解决上面的问题我们可以使用 <strong>synchronized</strong>代码块。</p>
+<ul>
+<li><p>JMM<strong>中的指令重排：</strong></p>
+<ul>
+<li><p>在执行程序时，为了提高性能，编译器和处理器常常会对指令做重排序，指令重排包括：</p>
+<ul>
+<li><strong>编译器</strong>优化</li>
+<li><strong>CPU</strong>的指令级并行</li>
+<li><strong>内存</strong>系统重排序</li>
+</ul>
+</li>
+<li><p><strong>as-if-serial关系 ：</strong> 不管怎么重排序（编译器和处理器为了提高并行度,程序的执行结果不能被改变。编译器、runtime和处理器都必须遵守as-if-serial语义。为了遵守as-if-serial语义，编译器和处理器<strong>不会对存在数据依赖关系的操作做重排序</strong>，因为这种重排序会改变执行结果。【仅限于<strong>单线程</strong>】</p>
+<p><strong>多线程下JMM的指令重排带来的问题</strong>：在多线程中：对存在控制依赖的操作重排序，可能会改变程序的执行结果.</p>
+</li>
+<li><p><strong>happens-before关系</strong>：保证正确同步的多线程程序的执行结果不被改变，满足可见性的程序都满足此关系。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>volitale</strong>关键字可解决：</p>
+<ul>
+<li><p><strong>可见性</strong>：【原理是<strong>MESI</strong>】</p>
+<ul>
+<li>当<strong>写</strong>一个volatile变量时：JMM会把该线程对应的本地内存中的共享变量值<strong>立即刷新到主内存</strong>。</li>
+<li>当<strong>读</strong>一个volatile变量时：JMM会把该线程对应的<strong>本地内存变量置为无效</strong>。线程接下来将<strong>从主内存中读取</strong>共享变量。</li>
+</ul>
+</li>
+<li><p><strong>有序性</strong>：【原理是<strong>内存屏障</strong>】：</p>
+<ul>
+<li><strong>volatile写操作</strong>的前面插入一个<strong>StoreStore屏障</strong>，后面插入一个<strong>StoreLoad屏障</strong>，禁止前面指令和后面指令交换顺序。</li>
+<li><strong>volatile读操作</strong>的后面插入一个<strong>LoadLoad屏障</strong>， 后面插入一个<strong>LoadStore屏障</strong>，禁止前面指令和后面指令交换顺序。</li>
+</ul>
+</li>
+<li><p><strong>不保证原子性：</strong></p>
+<p>对任意单个volatile变量的读/写具有原子性，但类似于<strong>i++这种复合操作不具有原子性</strong>。</p>
+<p><strong>那么如何保证原子性呢</strong>？ -&gt; lock、synchronized 【效率低】</p>
+<p>​                                            -&gt; <strong>使用原子类</strong>，例如AtomicInteger等；【底层是CAS】</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> AtomicInteger num = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line">num.getAndIncrement(); <span class="comment">// AtomicInteger + 1 ; 此方法原理是使用了 CAS</span></span><br></pre></td></tr></table></figure>
+
+<p>原子类的底层都直接和操作系统挂钩! 在内存中修改值! 其使用到的Unsafe类是一个很特殊的存在 !</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="19-单例模式"><a href="#19-单例模式" class="headerlink" title="19. 单例模式"></a>19. 单例模式</h3><p> <strong>1. 饿汉式</strong>:【永远提前加载，耗费系统资源】</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton SINGLETON = <span class="keyword">new</span> Singleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SINGLETON;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>饿汉式</strong>：【双重检测+锁+Volatile】<strong>重要</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonLazy</span> </span>&#123;</span><br><span class="line">    <span class="comment">//懒汉式</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingletonLazy</span><span class="params">()</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> SingletonLazy lazy;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SingletonLazy <span class="title">getLazy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(lazy == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (SingletonLazy<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(lazy == <span class="keyword">null</span>)&#123;</span><br><span class="line">                    lazy = <span class="keyword">new</span> SingletonLazy(); <span class="comment">//这不是一个原子性操作!</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> lazy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>为何要双重检测</strong>？因为除第一次调用外，大部分情况是单例已经创建，因此在外层加锁会导致每次调用此方法都会加锁，影响性能。所以在内层加锁，并且进入内层之后需要再次进行判断单例是否已经存在，若仍不存在，此时才可放心创建。</p>
+</li>
+<li><p><strong>为何声明单例时要加volatile？</strong>因为<code>lazy = new SingletonLazy();</code><strong>不是一个原子性操作,</strong>其步骤是：</p>
+<ol>
+<li>分配内存空间</li>
+<li>执行构造方法 初始化对象</li>
+<li>把对象指向这个内存空间</li>
+</ol>
+<p>由于<strong>指令重排</strong>的存在，可能使上述指令变为1-&gt;3-&gt;2的顺序，这样就会<strong>导致其他线程获取一个null的单例对象</strong>；</p>
+</li>
+</ul>
+<ol start="3">
+<li><p><strong>静态内部类实现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Holder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Holder</span><span class="params">()</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">InnerClass</span></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Holder HOLDER = <span class="keyword">new</span> Holder();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Holder <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> InnerClass.HOLDER;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="4">
+<li><p><strong>安全问题</strong>：无论是使用以上哪种方式，只要是以<strong>private修饰构造器</strong>用来限制外部调用的，都可以用<strong>反射机制破解</strong>！</p>
+<ul>
+<li><p>首先用<strong>getDeclaredConstructor()</strong>通过反射获取构造器</p>
+</li>
+<li><p>然后用<strong>setAccessible(true)</strong>即可无视构造器的private修饰符</p>
+</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        SingletonLazy instance1 = SingletonLazy.getLazy();</span><br><span class="line">        Constructor&lt;SingletonLazy&gt; constructor = SingletonLazy<span class="class">.<span class="keyword">class</span>.<span class="title">getDeclaredConstructor</span>(<span class="title">null</span>)</span>;<span class="comment">//通过反射获取构造器</span></span><br><span class="line">        constructor.setAccessible(<span class="keyword">true</span>);<span class="comment">//通过反射 无视构造器的private修饰符！！</span></span><br><span class="line">        SingletonLazy instance2 = constructor.newInstance();</span><br><span class="line">        System.out.println(instance1 == instance2);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>那么，单例类如何防止反射？</strong></p>
+<p>在其构造器内加入<strong>flag秘钥校验</strong>，使其在第二次被调用时抛出异常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;  </span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;  </span><br><span class="line">    <span class="keyword">synchronized</span>(Singleton<span class="class">.<span class="keyword">class</span>)</span>&#123;  </span><br><span class="line">        <span class="keyword">if</span>(flag == <span class="keyword">false</span>)&#123;  </span><br><span class="line">            flag = !flag;  </span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"单例模式被侵犯！"</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，若<strong>flag秘钥被泄露</strong>，同样可以通过<strong>反射</strong>将flag设置为相应的值，从而破解单例模式。</p>
+<ol start="5">
+<li>使用 <strong>枚举类enum</strong> 【现如今最推荐的单例模式方法】</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//enum默认就是单例的,又简单又牛逼,不存在安全问题！</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> EnumSingle &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> EnumSingle <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>修复安全问题：</strong></p>
+<ul>
+<li><p>当我们尝试像往常一样使反射破解枚举类时：</p>
+<p>出现异常:<strong>Cannot reflectively create enum objects</strong>【不能通过反射创建枚举对象】</p>
+<p>这是因为反射包的newInstance()方法中添加了以上的异常，<strong>禁止了通过反射创建枚举对象</strong>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException </span>&#123;</span><br><span class="line">        EnumSingle instance1 = EnumSingle.INSTANCE;</span><br><span class="line">        Constructor&lt;EnumSingle&gt; constructor = EnumSingle<span class="class">.<span class="keyword">class</span>.<span class="title">getDeclaredConstructor</span>(<span class="title">String</span>.<span class="title">class</span>,<span class="title">int</span>.<span class="title">class</span>)</span>;<span class="comment">//注意：枚举类只有有参构造器！</span></span><br><span class="line">        <span class="comment">//尝试使反射破解枚举类时,出现异常:Cannot reflectively create enum objects！</span></span><br><span class="line">        constructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">        EnumSingle instance2 = constructor.newInstance();</span><br><span class="line">        System.out.println(instance1 == instance2);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>序列化问题</strong></p>
+<p>当使用反序列化时，也会破坏单例模式，导致<strong>反序列化时生成的实例和之前的实例并不是同一个</strong>！</p>
+<p>而由于枚举类enum优先于反序列化方法readResolve(),因此<strong>不会被反序列化破坏单例</strong>。</p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/08/21/JVM%E8%B0%83%E4%BC%98/" rel="next" title="JVM调优">
+                <i class="fa fa-chevron-left"></i> JVM调优
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">田济荣</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jirong0214" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:geekouc@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://i.loli.net/2020/07/09/PqjnfpmXblhDYOJ.jpg" target="_blank" title="Wechat">
+                      
+                        <i class="fa fa-fw fa-wechat"></i>Wechat</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#tags-多线程"><span class="nav-number">1.</span> <span class="nav-text">tags:多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程与并发编程学习笔记02"><span class="nav-number">2.</span> <span class="nav-text">多线程与并发编程学习笔记02</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-阻塞队列-（多线程并发和线程池的时候经常使用）"><span class="nav-number">2.1.</span> <span class="nav-text">13. 阻塞队列  （多线程并发和线程池的时候经常使用）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-线程池【重要】【3大方法-7大参数-4种拒绝】"><span class="nav-number">2.2.</span> <span class="nav-text">14.线程池【重要】【3大方法&#x2F;7大参数&#x2F;4种拒绝】</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-函数式接口【重要】："><span class="nav-number">2.3.</span> <span class="nav-text">15. 函数式接口【重要】：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-ForkJoin"><span class="nav-number">2.4.</span> <span class="nav-text">16. ForkJoin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-异步回调"><span class="nav-number">2.5.</span> <span class="nav-text">17. 异步回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-JMM"><span class="nav-number">2.6.</span> <span class="nav-text">18. JMM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-单例模式"><span class="nav-number">2.7.</span> <span class="nav-text">19. 单例模式</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">田济荣</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
