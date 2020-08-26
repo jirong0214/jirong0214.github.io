@@ -639,6 +639,76 @@
 <p>而由于枚举类enum优先于反序列化方法readResolve(),因此<strong>不会被反序列化破坏单例</strong>。</p>
 </li>
 </ul>
+<h3 id="20-CAS-「Compare-And-Swap」乐观锁"><a href="#20-CAS-「Compare-And-Swap」乐观锁" class="headerlink" title="20. CAS 「Compare And Swap」乐观锁"></a>20. CAS 「Compare And Swap」乐观锁</h3><p>​    Atomic原子类下的方法都是compareAnd..(expect,newvalue)；例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AtomicInteger atomicInteger = <span class="keyword">new</span> AtomicInteger(<span class="number">2020</span>);</span><br><span class="line"><span class="comment">//如果当前值是我的期望值，那么就更新，否则就不更新</span></span><br><span class="line">atomicInteger.compareAndSet(<span class="number">2020</span>,<span class="number">2021</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>CAS是一条<strong>CPU并发原语</strong>：它的功能是判断内存<strong>某个位置的值是否为预期值,如果是则更新为新的值</strong>,这个过程是<strong>原子</strong>的。CAS并发原语提现在Java语言中就是<strong>sun.misc.UnSafe类</strong>中的各个方法。<strong>调用UnSafe类中的CAS方法,JVM会帮我实现CAS汇编指令.这种操作直接操作内存,通过它实现了原子操作。</strong></p>
+</li>
+<li><p><strong>CAS 操作包含三个操作数 —— 内存位置（V）、预期原值（A）和新值(B)：</strong></p>
+<p>判断过程：“我认为位置 V 应该包含值 A；如果包含该值，则将 B 放到这个位置；否则，不要更改该位置，只告诉我这个位置现在的值即可。”</p>
+</li>
+<li><p><strong>自旋锁</strong>：CAS的方法使用的是自旋锁，因为Unsafe类下的方法底层代码使用的是<strong>do..while()循环</strong>；</p>
+</li>
+<li><p><strong>缺点</strong>：</p>
+<ul>
+<li><strong>自旋锁</strong>循环比较耗时。解决办法 -&gt; 【<strong>pause</strong>指令】</li>
+<li><strong>一次只能保证一个</strong>共享变量的原子性。解决办法 -&gt; AtomicReference【<strong>原子引用</strong>】</li>
+<li><strong>ABA问题</strong>：当你获得对象当前数据后，在准备修改为新值前，对象的值被其他线程连续修改了两次，而经过两次修改后，对象的值又恢复为旧值，这样当前线程无法正确判断这个对象是否修改过。解决办法 -&gt;【<strong>时间戳原子引用</strong>】</li>
+</ul>
+</li>
+</ul>
+<h3 id="21-原子引用：【可以加时间戳】"><a href="#21-原子引用：【可以加时间戳】" class="headerlink" title="21. 原子引用：【可以加时间戳】"></a>21. 原子引用：【可以加时间戳】</h3><ul>
+<li><p><strong>AtomicReference 类</strong>：可将<strong>多个变量</strong>打包成一个引用类型的<strong>对象</strong>实现CAS；</p>
+</li>
+<li><p><strong>AtomicStampedReference 类</strong>的CAS方法比原子引用类的CAS方法多了两个变量（<strong>期望时间戳，新的时间戳</strong>）</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AtomicStampedReference&lt;Integer&gt; a = <span class="keyword">new</span> AtomicStampedReference&lt;&gt;(<span class="number">2020</span>,<span class="number">0</span>);</span><br><span class="line"><span class="keyword">int</span> stamp = a.getStamp(); <span class="comment">//获得当前时间戳</span></span><br><span class="line">a.compareAndSet(<span class="number">2020</span>,<span class="number">2021</span>,stamp,stamp+<span class="number">1</span>);<span class="comment">//「带时间戳的原子操作」</span></span><br></pre></td></tr></table></figure>
+
+<p>​        当AtomicStampedReference对应的数值被修改时，除了更新数据本身外，还必须要更新时间戳，<strong>对象值和时间戳都必须满足期望值</strong>，写入才会成功！【<strong>解决了ABA问题</strong>】</p>
+<h3 id="21-可重入锁：（递归锁）"><a href="#21-可重入锁：（递归锁）" class="headerlink" title="21. 可重入锁：（递归锁）"></a>21. 可重入锁：（递归锁）</h3><p>什么是可重入锁：</p>
+<p>广义上的可重入锁指的是<strong>可递归调用</strong>的锁。<strong>获取了外层的锁之后，在内层仍然可以获得该锁</strong>，并且不发生死锁（前提得是<strong>同一个对象或者class</strong>），这样的锁就叫做可重入锁。</p>
+<p><code>synchronized锁的Demo:</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//当外层方法sms()获取到对象的锁后，内层方法text()依然可以使用该锁；</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">sms</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        text();</span><br><span class="line">        System.out.println(<span class="string">"sms"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">text</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"打字"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Lock()锁的Demo:</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone2</span> </span>&#123;</span><br><span class="line">    Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sms</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        lock.lock();<span class="comment">//加锁</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            text();<span class="comment">//「这里面也有个加锁解锁的过程」；</span></span><br><span class="line">            System.out.println(<span class="string">"sms"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();<span class="comment">//解锁</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">text</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        lock.lock();<span class="comment">//加锁</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"打字"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();<span class="comment">//解锁</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>Synchronized、Reentrantlock 都是可重入锁；</strong></p>
+<p>注：当递归调用加锁方法时：Synchronized锁了一次，而Reentrantlock<strong>锁了两次</strong>；</p>
+<h3 id="22-自旋锁"><a href="#22-自旋锁" class="headerlink" title="22. 自旋锁"></a>22. 自旋锁</h3><p><strong>通过原子引用的CAS方法实现自旋</strong>：可以自己写一个自旋锁的Demo：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySpinLock</span> </span>&#123;</span><br><span class="line">    AtomicReference&lt;Thread&gt; atomicReference = <span class="keyword">new</span> AtomicReference&lt;&gt;();</span><br><span class="line">    <span class="comment">// 加锁</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myLock</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Thread thread = Thread.currentThread();</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"get myLock()"</span>);</span><br><span class="line">        <span class="comment">// 通过while实现自旋锁</span></span><br><span class="line">        <span class="keyword">while</span> (!atomicReference.compareAndSet(<span class="keyword">null</span>,thread))&#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 解锁</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">myUnlock</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Thread thread = Thread.currentThread();</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"get myUnlock()"</span>);</span><br><span class="line">        atomicReference.compareAndSet(thread,<span class="keyword">null</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="23-死锁"><a href="#23-死锁" class="headerlink" title="23. 死锁"></a>23. 死锁</h3><p>​    如下图所示，线程A持有资源2，线程B持有资源1,他们同时都想申请对方的资源，所 以这两个线程就会<strong>互相等待而进入    死锁状态</strong>。</p>
+<img src="https://i.loli.net/2020/08/26/yuJLIRp4viDE1Kn.png" alt="image-20200826140344353 " style="zoom:50%;" />
+
+<ul>
+<li><p><strong>死锁4条件：</strong></p>
+<ul>
+<li><strong>互斥条件 **: 该资源任意一个时刻</strong>只由一个线程占用**。</li>
+<li><strong>不可剥夺条件 **: 线程已获得的资源在末使用完之前</strong>不能被其他线程强行剥夺**，只有自己使用完毕后才释放资源。</li>
+<li><strong>请求与保持条件 **: 一个进程因</strong>请求资源而阻塞<strong>时，对已获得的资源</strong>保持不放**。</li>
+<li><strong>循环等待条件</strong> : 若干进程之间形成一种<strong>头尾相接的循环等待资源</strong>关系。</li>
+</ul>
+</li>
+<li><p><strong>如何排查死锁</strong>？</p>
+<ol>
+<li><p>使用 <code>jsp-l</code> 列出java中的进程：</p>
+<img src="https://i.loli.net/2020/08/26/FMx81hGmbsNtdQR.png" alt="image-20200826141834947  " style="zoom:67%;" />
+</li>
+<li><p>使用 <code>jstack 进程号</code> 查看进程信息：</p>
+</li>
+</ol>
+<img src="https://i.loli.net/2020/08/26/aT9HdfIgFp8PLjK.png" alt="image-20200826142136768 " style="zoom:50%;" />
+
+<p>可以看到找到一个deadlock（死锁）；并且可以看到每个线程已获取的锁以及他们想要等待获取的锁；</p>
+</li>
+</ul>
 
           
         
